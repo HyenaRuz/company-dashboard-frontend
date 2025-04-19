@@ -1,0 +1,19 @@
+import { Grid } from '@mui/material'
+
+import { SignupForm } from '@/components/auth-form/register-form/signup-form'
+
+const Signup = () => {
+  return (
+    <Grid
+      minHeight="100vh"
+      container
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <SignupForm />
+    </Grid>
+  )
+}
+
+export { Signup }

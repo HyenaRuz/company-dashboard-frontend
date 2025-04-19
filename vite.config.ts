@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path';
+import { resolve } from 'path'
+import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 // export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
     'process.env': {},
   },
   server: {
-    port: 8082, // можно изменить на 3000 или 8080
+    port: 8083, // можно изменить на 3000 или 8080
     open: true, // автоматическое открытие браузера
   },
-});
+})
