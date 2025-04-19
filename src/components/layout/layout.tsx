@@ -4,7 +4,7 @@ import { EAppRoutes } from '@/enums/app-routes.enum'
 import { getTokensFromLocalStorage } from '@/helpers/localstorage.helper'
 import { Login } from '@/screens/auth/login'
 import { Signup } from '@/screens/auth/signup'
-import { Companys } from '@/screens/companys'
+import { Companies } from '@/screens/companies'
 import { Home } from '@/screens/home'
 
 import { Dashboard } from '../dashboard'
@@ -30,7 +30,7 @@ const Layout = () => {
         }
       >
         <Route path={EAppRoutes.HOME} element={<Home />} />
-        <Route path={EAppRoutes.COMPANYS} element={<Companys />} />
+        <Route path={EAppRoutes.COMPANIES} element={<Companies />} />
       </Route>
 
       <Route path="*" element={<Navigate to={EAppRoutes.DASHBOARD} />} />

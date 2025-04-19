@@ -3,7 +3,7 @@ type TCompany = {
   name: string
   service: string
   capital: number
-  logoUrl: string
+  logoUrl?: string
   accountId: number
 }
 

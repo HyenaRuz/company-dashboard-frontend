@@ -1,7 +1,7 @@
 enum EAppRoutes {
   DASHBOARD = '/dashboard',
   HOME = 'home',
-  COMPANYS = 'companys',
+  COMPANIES = 'companies',
   LOGIN = 'login',
   SIGNUP = 'signup',
 }

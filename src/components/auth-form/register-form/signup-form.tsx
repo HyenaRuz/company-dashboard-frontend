@@ -4,13 +4,17 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Avatar, Button, Stack, TextField, Typography } from '@mui/material'
+import { Avatar, Stack, Typography } from '@mui/material'
 import * as yup from 'yup'
 
 import { checkEmail } from '@/api/account'
 import { signup } from '@/api/auth'
+import { Button } from '@/components/ui/button'
+import { TextField } from '@/components/ui/text-field'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { setTokenToLocalStorage } from '@/helpers/localstorage.helper'
+import { useAppDispatch } from '@/store'
+import { setAuth } from '@/store/slices/auth.slice'
 
 const validationSchema = yup.object({
   username: yup.string().required('Username is required'),
@@ -35,6 +39,7 @@ type TForm = {
 const SignupForm = () => {
   const [preview, setPreview] = useState<string | null>(null)
 
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -72,7 +77,7 @@ const SignupForm = () => {
       const { data } = await signup(formData)
 
       setTokenToLocalStorage(data.tokens)
-
+      dispatch(setAuth({ user: data.user, tokens: data.tokens }))
       toast('You have registered successfully.', { type: 'success' })
       navigate(EAppRoutes.DASHBOARD)
     } catch (err) {

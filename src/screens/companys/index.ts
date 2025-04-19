@@ -1,1 +1,0 @@
-export { Companys } from './companys'

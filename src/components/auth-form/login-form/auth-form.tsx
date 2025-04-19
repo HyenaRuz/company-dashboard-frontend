@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Stack, TextField, Typography } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import * as yup from 'yup'
 
 import { login } from '@/api/auth'
+import { Button } from '@/components/ui/button'
+import { TextField } from '@/components/ui/text-field'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { setTokenToLocalStorage } from '@/helpers/localstorage.helper'
+import { useAppDispatch } from '@/store'
+import { setAuth } from '@/store/slices/auth.slice'
 
 const validationSchema = yup.object({
   login: yup.string().required('Login is required'),
@@ -17,6 +21,7 @@ const validationSchema = yup.object({
 
 const AuthForm = () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
   const {
     control,
@@ -35,6 +40,7 @@ const AuthForm = () => {
       const { data } = await login({ login: payload.login, password: payload.password })
 
       setTokenToLocalStorage(data.tokens)
+      dispatch(setAuth({ user: data.user, tokens: data.tokens }))
       navigate(EAppRoutes.DASHBOARD)
       toast('You have successfully logged in.', { type: 'success' })
     } catch (err) {
