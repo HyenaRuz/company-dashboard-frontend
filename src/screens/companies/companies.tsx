@@ -19,9 +19,11 @@ const Companies = () => {
   const [totalGames, setTotalGames] = useState(0)
   const [searchParams, setSearchParams] = useSearchParams()
   const [formModalOpen, setFormModalOpen] = useState(false)
+  const [selectedCompany, setSelectedCompany] = useState<TCompany | null>(null)
 
   const closeModal = () => {
     setFormModalOpen(false)
+    setSelectedCompany(null)
   }
 
   const filters = {
@@ -43,6 +45,8 @@ const Companies = () => {
         page: pageToUse,
         limit: DEFAULT_PAGINATION_TAKE,
       })
+
+      setSelectedCompany(null)
 
       const [companies, total] = data
 
@@ -80,7 +84,13 @@ const Companies = () => {
       <Grid gap={2} display="grid" width="100%" minHeight="400px">
         <Grid gridTemplateColumns={'repeat(3, 1fr)'} gap={2} display="grid" justifyItems="center">
           {companies.map((company) => (
-            <CompanyCard key={company.id} company={company} />
+            <CompanyCard
+              key={company.id}
+              company={company}
+              refreshData={fetchData}
+              onClick={() => setFormModalOpen(true)}
+              setSelectedCompany={setSelectedCompany}
+            />
           ))}
           <CompanyCard addCompany onClick={() => setFormModalOpen(true)} />
         </Grid>
@@ -115,8 +125,14 @@ const Companies = () => {
           onChange={(_, value) => handlePageChange(value)}
         />
       </Container>
+
       <Modal open={formModalOpen} onClose={closeModal}>
-        <CompanyForm onClose={closeModal} reloadData={fetchData} />
+        <CompanyForm
+          onClose={closeModal}
+          reloadData={fetchData}
+          company={selectedCompany}
+          type={selectedCompany ? 'update' : 'create'}
+        />
       </Modal>
     </>
   )

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
@@ -6,10 +6,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Stack } from '@mui/material'
 import * as yup from 'yup'
 
-import { createCompany } from '@/api/companies'
+import { createCompany, updateCompany } from '@/api/companies'
 import placeholder from '@/assets/placeholder.png'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
+import { TCompany } from '@/types/company.types'
 
 const validationSchema = yup.object({
   name: yup.string().required('Name is required'),
@@ -23,25 +24,39 @@ type TForm = {
   capital: string
 }
 
-const CompanyForm = ({ onClose, reloadData }: { onClose: () => void; reloadData: () => void }) => {
+type TFormUpdate = TForm & {
+  logoRemoved: boolean
+}
+
+type TProps = {
+  onClose: () => void
+  reloadData: () => void
+  company?: TCompany | null
+  type?: 'create' | 'update'
+}
+
+const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) => {
   const [preview, setPreview] = useState<string | null>(null)
 
   const fileRef = useRef<HTMLInputElement>(null)
+  const defaultValues = {
+    name: company?.name || '',
+    service: company?.service || '',
+    capital: `${company?.capital}` || '',
+  }
 
   const {
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
-  } = useForm<TForm>({
-    defaultValues: {
-      name: '',
-      service: '',
-      capital: '',
-    },
+  } = useForm<TForm | TFormUpdate>({
+    defaultValues,
     resolver: yupResolver(validationSchema),
   })
 
-  const submit: SubmitHandler<TForm> = async (payload: TForm) => {
+  const createSubmit: SubmitHandler<TForm> = async (payload: TForm) => {
     try {
       const file = fileRef.current?.files?.[0]
 
@@ -65,6 +80,30 @@ const CompanyForm = ({ onClose, reloadData }: { onClose: () => void; reloadData:
       toast(`Error: ${(err as any).message}`, { type: 'error' })
     }
   }
+  const updateSubmit: SubmitHandler<TForm> = async (payload: TForm) => {
+    try {
+      const file = fileRef.current?.files?.[0]
+
+      const formData = new FormData()
+
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value)
+        }
+      })
+
+      if (file) formData.append('logo', file)
+
+      await updateCompany(company?.id!, formData)
+
+      onClose()
+      reloadData()
+
+      toast('You have registered successfully.', { type: 'success' })
+    } catch (err) {
+      toast(`Error: ${(err as any).message}`, { type: 'error' })
+    }
+  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -73,12 +112,24 @@ const CompanyForm = ({ onClose, reloadData }: { onClose: () => void; reloadData:
     const reader = new FileReader()
     reader.onloadend = () => {
       setPreview(reader.result as string)
+      setValue('logoRemoved', false)
     }
     reader.readAsDataURL(file)
   }
 
+  useEffect(() => {
+    if (company?.logoUrl) {
+      setPreview(company.logoUrl)
+    }
+  }, [company])
+
+  const logoRemoved = watch('logoRemoved')
+
   return (
-    <form onSubmit={handleSubmit(submit)} style={{ width: '100%' }}>
+    <form
+      onSubmit={handleSubmit(type === 'create' ? createSubmit : updateSubmit)}
+      style={{ width: '100%' }}
+    >
       <Stack spacing={2} alignItems="center">
         <Box
           component="img"
@@ -91,10 +142,26 @@ const CompanyForm = ({ onClose, reloadData }: { onClose: () => void; reloadData:
             borderRadius: 2,
           }}
         />
+        <Stack flexDirection="row" width="100%" justifyContent="space-evenly">
+          <Button variant="contained" onClick={() => fileRef.current?.click()}>
+            Upload Avatar
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: 'var(--color-red)' }}
+            onClick={() => {
+              setPreview('')
+              setValue('logoRemoved', true)
+              if (fileRef.current) {
+                fileRef.current.value = ''
+              }
+            }}
+            disabled={!preview}
+          >
+            Remove Logo
+          </Button>
+        </Stack>
 
-        <Button variant="contained" onClick={() => fileRef.current?.click()}>
-          Upload Avatar
-        </Button>
         <input
           type="file"
           ref={fileRef}
@@ -148,7 +215,7 @@ const CompanyForm = ({ onClose, reloadData }: { onClose: () => void; reloadData:
           />
 
           <Button type="submit" variant="contained">
-            Create
+            {type === 'create' ? 'Create' : 'Update'}
           </Button>
         </Stack>
       </Stack>
