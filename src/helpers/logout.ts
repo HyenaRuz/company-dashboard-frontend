@@ -1,16 +1,18 @@
 import { useNavigate } from 'react-router-dom'
 
-import { useAppDispatch } from '@/store'
-import { clearAuth } from '@/store/slices/auth.slice'
+import { useQueryClient } from '@tanstack/react-query'
+
+import { EAppRoutes } from '@/enums/app-routes.enum'
 
 const useLogout = () => {
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   return () => {
-    dispatch(clearAuth())
     localStorage.clear()
-    navigate('/login')
+    queryClient.clear()
+
+    navigate(EAppRoutes.LOGIN)
   }
 }
 

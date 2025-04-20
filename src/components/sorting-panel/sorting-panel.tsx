@@ -14,6 +14,7 @@ const sortingOptions: TOption[] = [
   { title: 'Name', value: ECompanySorting.NAME },
   { title: 'Service', value: ECompanySorting.SERVICE },
   { title: 'Capital', value: ECompanySorting.CAPITAL },
+  { title: 'Create', value: ECompanySorting.CREATEDAT },
 ]
 
 const SortingPanel = ({

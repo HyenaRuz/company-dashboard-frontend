@@ -1,31 +1,17 @@
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 import { ToastContainer } from 'react-toastify'
 
-import { getMe } from './api/account'
+import { LinearProgress } from '@mui/material'
+
 import { Layout } from './components/layout'
-import { getTokensFromLocalStorage } from './helpers/localstorage.helper'
-import { useAppDispatch } from './store'
-import { clearAuth, setAuth } from './store/slices/auth.slice'
+import { useUser } from './hooks/query-client/useUser'
 
 function App() {
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    const tokens = getTokensFromLocalStorage()
-    if (!tokens?.accessToken) return
-
-    getMe()
-      .then((res) => {
-        dispatch(setAuth({ user: res.data, tokens }))
-      })
-      .catch(() => {
-        dispatch(clearAuth())
-      })
-  }, [])
+  const { isLoading } = useUser()
 
   return (
     <>
-      <Layout />
+      {isLoading ? <LinearProgress /> : <Layout />}
 
       <ToastContainer theme="dark" />
     </>

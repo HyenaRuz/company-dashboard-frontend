@@ -15,6 +15,7 @@ module.exports = {
     'plugin:@typescript-eslint/stylistic',
     'plugin:prettier/recommended',
     'prettier',
+    '@tanstack/react-query',
   ],
   settings: {
     react: {
@@ -44,7 +45,7 @@ module.exports = {
   rules: {
     'no-var': 'error',
     'no-alert': 'error',
-    'no-console': ["error", { allow: ["warn", "error"] }],
+    'no-console': ['error', { allow: ['warn', 'error'] }],
     'prefer-const': 'error',
     // "prefer-destructuring": "error",
 

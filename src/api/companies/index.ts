@@ -7,7 +7,7 @@ import { api } from '..'
 const BASE_URL = 'company'
 
 const createCompany = (payload: FormData) =>
-  api.post(`${BASE_URL}/create`, payload, {
+  api.post(`${BASE_URL}`, payload, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

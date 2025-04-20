@@ -8,13 +8,10 @@ import { Avatar, Stack, Typography } from '@mui/material'
 import * as yup from 'yup'
 
 import { checkEmail } from '@/api/account'
-import { signup } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
 import { EAppRoutes } from '@/enums/app-routes.enum'
-import { setTokenToLocalStorage } from '@/helpers/localstorage.helper'
-import { useAppDispatch } from '@/store'
-import { setAuth } from '@/store/slices/auth.slice'
+import { useSignup } from '@/hooks/query-client'
 
 const validationSchema = yup.object({
   username: yup.string().required('Username is required'),
@@ -39,7 +36,7 @@ type TForm = {
 const SignupForm = () => {
   const [preview, setPreview] = useState<string | null>(null)
 
-  const dispatch = useAppDispatch()
+  const signupMutation = useSignup()
   const navigate = useNavigate()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -58,31 +55,34 @@ const SignupForm = () => {
   })
 
   const submit = async (payload: TForm) => {
-    try {
-      const check = await checkEmail(payload.email.trim())
+    const check = await checkEmail(payload.email.trim())
 
-      if (check.data) {
-        toast('Email already exists', { type: 'error' })
-        return
-      }
-
-      const file = fileRef.current?.files?.[0]
-
-      const formData = new FormData()
-      formData.append('username', payload.username)
-      formData.append('email', payload.email)
-      formData.append('password', payload.password)
-      if (file) formData.append('avatar', file)
-
-      const { data } = await signup(formData)
-
-      setTokenToLocalStorage(data.tokens)
-      dispatch(setAuth({ user: data.user, tokens: data.tokens }))
-      toast('You have registered successfully.', { type: 'success' })
-      navigate(EAppRoutes.DASHBOARD)
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
+    if (check.data) {
+      toast('Email already exists', { type: 'error' })
+      return
     }
+
+    const file = fileRef.current?.files?.[0]
+
+    const formData = new FormData()
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value)
+      }
+    })
+
+    if (file) formData.append('avatar', file)
+
+    signupMutation.mutate(formData, {
+      onSuccess: () => {
+        toast('You have registered successfully.', { type: 'success' })
+        navigate(EAppRoutes.DASHBOARD)
+      },
+      onError: (err: any) => {
+        toast(`Error: ${err.message}`, { type: 'error' })
+      },
+    })
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,9 +100,7 @@ const SignupForm = () => {
     <form onSubmit={handleSubmit(submit)} style={{ width: '100%', maxWidth: '300px' }}>
       <Stack spacing={2} alignItems="center">
         <Avatar src={preview || ''} sx={{ width: 96, height: 96 }} />
-        <Button variant="outlined" onClick={() => fileRef.current?.click()}>
-          Upload Avatar
-        </Button>
+        <Button onClick={() => fileRef.current?.click()}>Upload Avatar</Button>
         <input
           type="file"
           ref={fileRef}

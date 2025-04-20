@@ -6,13 +6,10 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Stack, Typography } from '@mui/material'
 import * as yup from 'yup'
 
-import { login } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
 import { EAppRoutes } from '@/enums/app-routes.enum'
-import { setTokenToLocalStorage } from '@/helpers/localstorage.helper'
-import { useAppDispatch } from '@/store'
-import { setAuth } from '@/store/slices/auth.slice'
+import { useLogin } from '@/hooks/query-client'
 
 const validationSchema = yup.object({
   login: yup.string().required('Login is required'),
@@ -21,7 +18,7 @@ const validationSchema = yup.object({
 
 const AuthForm = () => {
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
+  const loginMutation = useLogin()
 
   const {
     control,
@@ -36,16 +33,15 @@ const AuthForm = () => {
   })
 
   const submit = async (payload: { login: string; password: string }) => {
-    try {
-      const { data } = await login({ login: payload.login, password: payload.password })
-
-      setTokenToLocalStorage(data.tokens)
-      dispatch(setAuth({ user: data.user, tokens: data.tokens }))
-      navigate(EAppRoutes.DASHBOARD)
-      toast('You have successfully logged in.', { type: 'success' })
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
-    }
+    loginMutation.mutate(payload, {
+      onSuccess: () => {
+        toast('You have successfully logged in.', { type: 'success' })
+        navigate(EAppRoutes.DASHBOARD)
+      },
+      onError: (error: any) => {
+        toast(`Error: ${error?.message}`, { type: 'error' })
+      },
+    })
   }
 
   return (

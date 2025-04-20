@@ -1,1 +1,1 @@
-export const DEFAULT_PAGINATION_TAKE = 4
+export const DEFAULT_PAGINATION_TAKE = 9

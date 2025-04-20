@@ -5,8 +5,10 @@ import { toast } from 'react-toastify'
 import { Container, Grid, LinearProgress, Pagination } from '@mui/material'
 
 import { getCompanies } from '@/api/companies'
-import { NoDataLabel } from '@/components/no-data-label'
+import { CompanyCard } from '@/components/company-card'
+import { CompanyForm } from '@/components/company-form/company-form'
 import { SortingPanel } from '@/components/sorting-panel/sorting-panel'
+import { Modal } from '@/components/ui/modal'
 import { DEFAULT_PAGINATION_TAKE } from '@/constants'
 import { useDebounce } from '@/hooks/useDebounce.hook'
 import { TCompany } from '@/types/company.types'
@@ -16,12 +18,18 @@ const Companies = () => {
   const [loading, setLoading] = useState(true)
   const [totalGames, setTotalGames] = useState(0)
   const [searchParams, setSearchParams] = useSearchParams()
+  const [formModalOpen, setFormModalOpen] = useState(false)
+
+  const closeModal = () => {
+    setFormModalOpen(false)
+  }
 
   const filters = {
     name: searchParams.get('name') || '',
     sortField: searchParams.get('sortField') || 'name',
     sortDirection: (searchParams.get('sortDirection') as 'asc' | 'desc') || 'asc',
     page: Number(searchParams.get('page')) || 1,
+    createdAt: searchParams.get('createdAt') || '',
   }
 
   const page = Number(searchParams.get('page')) || 1
@@ -68,50 +76,49 @@ const Companies = () => {
       return <LinearProgress />
     }
 
-    if (!companies?.length) {
-      return <NoDataLabel />
-    }
     return (
       <Grid gap={2} display="grid" width="100%" minHeight="400px">
         <Grid gridTemplateColumns={'repeat(3, 1fr)'} gap={2} display="grid" justifyItems="center">
           {companies.map((company) => (
-            <div key={company.id}>
-              <div>{company.name}</div>
-              <div>{company.id}</div>
-              <div>{company.capital}</div>
-            </div>
+            <CompanyCard key={company.id} company={company} />
           ))}
+          <CompanyCard addCompany onClick={() => setFormModalOpen(true)} />
         </Grid>
       </Grid>
     )
   }
 
   return (
-    <Container
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 3,
-      }}
-    >
-      <SortingPanel
-        filters={filters}
-        setFilters={(newFilters) => {
-          setSearchParams({
-            ...newFilters,
-          })
+    <>
+      <Container
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3,
         }}
-      />
+      >
+        <SortingPanel
+          filters={filters}
+          setFilters={(newFilters) => {
+            setSearchParams({
+              ...newFilters,
+            })
+          }}
+        />
 
-      {renderContent()}
+        {renderContent()}
 
-      <Pagination
-        count={Math.ceil(totalGames / DEFAULT_PAGINATION_TAKE)}
-        page={page}
-        onChange={(_, value) => handlePageChange(value)}
-      />
-    </Container>
+        <Pagination
+          count={Math.ceil(totalGames / DEFAULT_PAGINATION_TAKE)}
+          page={page}
+          onChange={(_, value) => handlePageChange(value)}
+        />
+      </Container>
+      <Modal open={formModalOpen} onClose={closeModal}>
+        <CompanyForm onClose={closeModal} reloadData={fetchData} />
+      </Modal>
+    </>
   )
 }
 

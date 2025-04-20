@@ -1,19 +1,30 @@
 import { api } from '@/api'
 import { getTokensFromLocalStorage } from '@/helpers/localstorage.helper'
 import { TAccount } from '@/types/account.types'
-import { TAuthTokens } from '@/types/auth.types'
+import { TAuthResponse, TAuthTokens } from '@/types/auth.types'
 
 const BASE_URL = 'auth'
 
-const signup = (formData: FormData) =>
-  api.post<{ user: TAccount; tokens: TAuthTokens }>(`${BASE_URL}/login`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
+const signup = async (formData: FormData): Promise<TAuthResponse> => {
+  const { data } = await api.post<{ user: TAccount; tokens: TAuthTokens }>(
+    `${BASE_URL}/signup`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     },
-  })
+  )
+  return data
+}
 
-const login = (payload: { login: string; password: string }) =>
-  api.post<{ tokens: TAuthTokens; user: TAccount }>(`${BASE_URL}/login`, payload)
+const login = async (payload: { login: string; password: string }): Promise<TAuthResponse> => {
+  const { data } = await api.post<{ tokens: TAuthTokens; user: TAccount }>(
+    `${BASE_URL}/login`,
+    payload,
+  )
+  return data
+}
 
 const refreshTokens = async () => {
   const tokens = await getTokensFromLocalStorage()

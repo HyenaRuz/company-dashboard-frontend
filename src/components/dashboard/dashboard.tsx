@@ -7,7 +7,9 @@ import {
   AppBar,
   Avatar,
   Container,
+  Divider,
   Grid,
+  IconButton,
   MenuItem,
   Stack,
   Toolbar,
@@ -17,7 +19,7 @@ import cn from 'classnames'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { useLogout } from '@/helpers/logout'
-import { useAppSelector } from '@/store'
+import { useUserFromCache } from '@/hooks/query-client'
 
 import { Popover } from '../popover'
 import { Button } from '../ui/button'
@@ -29,7 +31,8 @@ const HEADER_LINKS = [
 ]
 
 const Dashboard = () => {
-  const user = useAppSelector((state) => state.app.user)
+  const user = useUserFromCache()
+
   const location = useLocation()
   const [userControlsAnchorEl, setUserControlsAnchorEl] = useState<HTMLButtonElement | null>(null)
 
@@ -38,6 +41,18 @@ const Dashboard = () => {
   useEffect(() => {
     setUserControlsAnchorEl(null)
   }, [user])
+
+  const renderContent = () => {
+    // if (isLoading) {
+    //   return <LinearProgress />
+    // }
+
+    return (
+      <Container sx={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 2 }}>
+        <Outlet />
+      </Container>
+    )
+  }
 
   return (
     <Grid minHeight="100vh" container flexDirection="column">
@@ -61,30 +76,33 @@ const Dashboard = () => {
               ))}
             </Grid>
           </Grid>
-          <Button
+          <IconButton
             onClick={(e) => {
               setUserControlsAnchorEl(e.currentTarget)
             }}
           >
             <Avatar src={user?.avatarUrl} sx={{ width: 64, height: 64 }} />
-          </Button>
+          </IconButton>
         </Toolbar>
       </AppBar>
 
       <Popover anchorEl={userControlsAnchorEl} onClose={() => setUserControlsAnchorEl(null)}>
-        <Stack>
-          <Typography>{user?.username}</Typography>
-          <Typography>{user?.email}</Typography>
-          <Button onClick={logout}>
-            <Logout />
+        <Stack gap={2}>
+          <Stack>
+            <Typography>{user?.username}</Typography>
+            <Typography>{user?.email}</Typography>
+          </Stack>
+
+          <Divider orientation="horizontal" />
+
+          <Button onClick={logout} variant="contained" sx={{ gap: 2 }}>
             Logout
+            <Logout />
           </Button>
         </Stack>
       </Popover>
 
-      <Container sx={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 2 }}>
-        <Outlet />
-      </Container>
+      {renderContent()}
     </Grid>
   )
 }

@@ -1,7 +1,12 @@
 import { ButtonProps, Button as MuiButton } from '@mui/material'
 
-const Button = ({ children, ...props }: ButtonProps) => {
-  return <MuiButton {...props}>{children}</MuiButton>
+type TProps = ButtonProps
+const Button = ({ children, sx, ...props }: TProps) => {
+  return (
+    <MuiButton variant="contained" sx={{ backgroundColor: 'var(--color-brand)', ...sx }} {...props}>
+      {children}
+    </MuiButton>
+  )
 }
 
 export { Button }

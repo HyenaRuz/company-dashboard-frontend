@@ -10,6 +10,9 @@ const getAllAccounts = async () => {
 
 const checkEmail = (email: string) => api.post(`${BASE_URL}/check-email`, { email })
 
-const getMe = () => api.get<TAccount>(`${BASE_URL}/me`)
+const getMe = async () => {
+  const { data } = await api.get<TAccount>(`${BASE_URL}/me`)
+  return data
+}
 
 export { getAllAccounts, checkEmail, getMe }

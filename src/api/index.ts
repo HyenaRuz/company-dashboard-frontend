@@ -32,20 +32,18 @@ api.interceptors.response.use(
       if (!originalRequest._retry) {
         originalRequest._retry = true
         const refreshToken = getTokensFromLocalStorage()
+
         if (!refreshToken?.refreshToken) {
           return Promise.reject({ ...error, message: error.message })
         }
 
         try {
           const { data } = await refreshTokens()
-
           setTokenToLocalStorage(data)
-
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
           return api(originalRequest)
         } catch (err) {
           useLogout()
-          window.location.href = '/login'
         }
       } else {
         useLogout()
