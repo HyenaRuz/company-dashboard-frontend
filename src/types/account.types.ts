@@ -11,4 +11,10 @@ type TAccount = {
   companies?: TCompany[]
 }
 
-export type { TAccount }
+type TChangePassword = {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
+export type { TAccount, TChangePassword }

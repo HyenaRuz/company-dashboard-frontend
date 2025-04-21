@@ -49,7 +49,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
     control,
     handleSubmit,
     setValue,
-    watch,
+
     formState: { errors },
   } = useForm<TForm | TFormUpdate>({
     defaultValues,
@@ -123,8 +123,6 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
     }
   }, [company])
 
-  const logoRemoved = watch('logoRemoved')
-
   return (
     <form
       onSubmit={handleSubmit(type === 'create' ? createSubmit : updateSubmit)}
@@ -138,6 +136,8 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
           sx={{
             width: '100%',
             height: '100%',
+            maxWidth: 560,
+            maxHeight: 370,
             objectFit: 'cover',
             borderRadius: 2,
           }}

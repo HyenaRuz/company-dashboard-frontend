@@ -1,18 +1,29 @@
-import { TAccount } from '@/types/account.types'
+import { TAccount, TChangePassword } from '@/types/account.types'
 
 import { api } from '..'
 
 const BASE_URL = 'account'
 
 const getAllAccounts = async () => {
-  api.get<TAccount[] | null>(`${BASE_URL}/all-accounts`)
+  await api.get<TAccount[] | null>(`${BASE_URL}/all-accounts`)
 }
 
-const checkEmail = (email: string) => api.post(`${BASE_URL}/check-email`, { email })
+const checkEmail = async (email: string) => await api.post(`${BASE_URL}/check-email`, { email })
 
 const getMe = async () => {
   const { data } = await api.get<TAccount>(`${BASE_URL}/me`)
   return data
 }
 
-export { getAllAccounts, checkEmail, getMe }
+const updateAccount = async (payload: FormData) =>
+  api.put<TAccount>(`${BASE_URL}/me`, payload, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+const updateAccountPassword = async (payload: TChangePassword) => {
+  await api.put(`${BASE_URL}/me/password`, payload)
+}
+
+export { getAllAccounts, checkEmail, getMe, updateAccount, updateAccountPassword }

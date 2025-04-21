@@ -1,6 +1,6 @@
 import { Grid } from '@mui/material'
 
-import { SignupForm } from '@/components/auth-form/register-form'
+import { SignupForm } from '@/components/forms/register-form'
 
 const Signup = () => {
   return (

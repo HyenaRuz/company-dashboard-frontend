@@ -6,12 +6,12 @@ import { Container, Grid, LinearProgress, Pagination } from '@mui/material'
 
 import { getCompanies } from '@/api/companies'
 import { CompanyCard } from '@/components/company-card'
-import { CompanyForm } from '@/components/company-form/company-form'
 import { SortingPanel } from '@/components/sorting-panel/sorting-panel'
 import { Modal } from '@/components/ui/modal'
 import { DEFAULT_PAGINATION_TAKE } from '@/constants'
 import { useDebounce } from '@/hooks/useDebounce.hook'
 import { TCompany } from '@/types/company.types'
+import { CompanyForm } from '@/components/forms/company-form'
 
 const Companies = () => {
   const [companies, setCompanies] = useState<TCompany[]>([])
@@ -82,7 +82,13 @@ const Companies = () => {
 
     return (
       <Grid gap={2} display="grid" width="100%" minHeight="400px">
-        <Grid gridTemplateColumns={'repeat(3, 1fr)'} gap={2} display="grid" justifyItems="center">
+        <Grid
+          gridTemplateColumns={{ xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }}
+          gap={2}
+          display="grid"
+          justifyItems="center"
+        >
+          <CompanyCard addCompany onClick={() => setFormModalOpen(true)} />
           {companies.map((company) => (
             <CompanyCard
               key={company.id}
@@ -92,7 +98,6 @@ const Companies = () => {
               setSelectedCompany={setSelectedCompany}
             />
           ))}
-          <CompanyCard addCompany onClick={() => setFormModalOpen(true)} />
         </Grid>
       </Grid>
     )
@@ -106,6 +111,7 @@ const Companies = () => {
           flexDirection: 'column',
           alignItems: 'center',
           gap: 3,
+          px: { xs: 0, sm: 2, md: 3 },
         }}
       >
         <SortingPanel

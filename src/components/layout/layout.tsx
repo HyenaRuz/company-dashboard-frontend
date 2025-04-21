@@ -6,8 +6,9 @@ import { Login } from '@/screens/auth/login'
 import { Signup } from '@/screens/auth/signup'
 import { Companies } from '@/screens/companies'
 import { Home } from '@/screens/home'
+import { Profile } from '@/screens/profile'
 
-import { Dashboard } from '../dashboard'
+import { UserLayout } from '../user-layout/user-layout'
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const tokens = getTokensFromLocalStorage()
@@ -22,18 +23,19 @@ const Layout = () => {
       <Route path={EAppRoutes.SIGNUP} element={<Signup />} />
 
       <Route
-        path={EAppRoutes.DASHBOARD}
+        path="/"
         element={
           <PrivateRoute>
-            <Dashboard />
+            <UserLayout />
           </PrivateRoute>
         }
       >
         <Route path={EAppRoutes.HOME} element={<Home />} />
         <Route path={EAppRoutes.COMPANIES} element={<Companies />} />
+        <Route path={EAppRoutes.PROFILE} element={<Profile />} />
       </Route>
 
-      <Route path="*" element={<Navigate to={EAppRoutes.DASHBOARD} />} />
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )
 }
