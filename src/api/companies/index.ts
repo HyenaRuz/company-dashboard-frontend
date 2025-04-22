@@ -13,7 +13,7 @@ const createCompany = (payload: FormData) =>
     },
   })
 
-const getCompanies = async (params: TPagination & TSorting) =>
+const getCompanies = (params: TPagination & TSorting & { allCompanies: boolean }) =>
   api.get<[TCompany[], number]>(`${BASE_URL}${createQueryString(params)}`)
 
 const updateCompany = async (id: number, payload: FormData) =>

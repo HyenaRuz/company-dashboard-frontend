@@ -35,7 +35,7 @@ const Layout = () => {
         <Route path={EAppRoutes.PROFILE} element={<Profile />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to='/home' />} />
     </Routes>
   )
 }

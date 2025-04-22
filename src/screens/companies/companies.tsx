@@ -6,12 +6,12 @@ import { Container, Grid, LinearProgress, Pagination } from '@mui/material'
 
 import { getCompanies } from '@/api/companies'
 import { CompanyCard } from '@/components/company-card'
+import { CompanyForm } from '@/components/forms/company-form'
 import { SortingPanel } from '@/components/sorting-panel/sorting-panel'
 import { Modal } from '@/components/ui/modal'
 import { DEFAULT_PAGINATION_TAKE } from '@/constants'
 import { useDebounce } from '@/hooks/useDebounce.hook'
 import { TCompany } from '@/types/company.types'
-import { CompanyForm } from '@/components/forms/company-form'
 
 const Companies = () => {
   const [companies, setCompanies] = useState<TCompany[]>([])
@@ -42,6 +42,7 @@ const Companies = () => {
 
       const { data } = await getCompanies({
         ...filters,
+        allCompanies: false,
         page: pageToUse,
         limit: DEFAULT_PAGINATION_TAKE,
       })
