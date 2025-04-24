@@ -2,15 +2,9 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
-// https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react()],
-// })
-
 export default defineConfig({
   plugins: [
     react({
-      // Для поддержки MUI с Emotion (sx, theme)
       jsxImportSource: '@emotion/react',
     }),
   ],
@@ -20,11 +14,10 @@ export default defineConfig({
     },
   },
   define: {
-    // Если ты хочешь использовать process.env.XY в коде
     'process.env': {},
   },
   server: {
-    port: 8083, // можно изменить на 3000 или 8080
-    open: true, // автоматическое открытие браузера
+    port: 8083,
+    open: true,
   },
 })
