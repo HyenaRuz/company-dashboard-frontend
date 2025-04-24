@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
 import { RouteProtection } from '@/helpers/with-route-protection'
+import { Admins } from '@/screens/admins'
 import { Login } from '@/screens/auth/login'
 import { Signup } from '@/screens/auth/signup'
 import { Companies } from '@/screens/companies'
@@ -45,6 +46,14 @@ const Layout = () => {
         <Route path={EAppRoutes.COMPANIES} element={<CompaniesDashboard />} />
         <Route path={EAppRoutes.PROFILE} element={<Profile />} />
         <Route path={EAppRoutes.USERS} element={<Users />} />
+        <Route
+          path={EAppRoutes.ADMINS}
+          element={
+            <RouteProtection requiredRoles={[ERole.SUPERADMIN]}>
+              <Admins />
+            </RouteProtection>
+          }
+        />
       </Route>
 
       <Route path="/admin/*" element={<Navigate to="/admin/home" replace />} />

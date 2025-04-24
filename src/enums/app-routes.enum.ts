@@ -6,6 +6,7 @@ enum EAppRoutes {
   SIGNUP = 'signup',
   PROFILE = 'profile',
   ADMIN = 'admin',
+  ADMINS = 'admins',
   USERS = 'users',
 }
 

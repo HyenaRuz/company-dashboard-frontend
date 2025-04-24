@@ -8,7 +8,8 @@ type TAccount = {
   username?: string
   role?: ERole
   avatarUrl?: string
-  createdAt?: Date
+  createdAt: Date
+  updatedAt: Date
   companiesCount?: number
   _count?: { companies?: number }
   companies?: TCompany[]

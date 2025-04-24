@@ -4,21 +4,22 @@ import { Button, ButtonGroup, Stack } from '@mui/material'
 import { LineChart as MuiLineChart } from '@mui/x-charts'
 import moment from 'moment'
 
+import { TAccount } from '@/types/account.types'
 import { TCompany } from '@/types/company.types'
 
 type TRange = 'day' | 'month' | 'year'
 
 const LineChart = ({
-  companies,
+  data,
   param = 'createdAt',
 }: {
-  companies: TCompany[]
+  data: TCompany[] | TAccount[]
   param?: 'createdAt' | 'updatedAt'
 }) => {
   const [range, setRange] = useState<TRange>('month')
 
   const chartData = useMemo(() => {
-    if (!companies.length) return []
+    if (!data.length) return []
 
     const now = moment()
     let start: moment.Moment
@@ -48,8 +49,8 @@ const LineChart = ({
     }
 
     const counts: Record<string, number> = {}
-    companies.forEach((company) => {
-      const date = moment(company[param])
+    data.forEach((item) => {
+      const date = moment(item[param])
       if (date.isBefore(start) || date.isAfter(now)) return
 
       const key = date.format(format)
@@ -60,7 +61,7 @@ const LineChart = ({
       label,
       count: counts[label] || 0,
     }))
-  }, [companies, range])
+  }, [data, range])
 
   return (
     <Stack spacing={2}>

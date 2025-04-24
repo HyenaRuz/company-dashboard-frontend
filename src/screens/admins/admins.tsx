@@ -8,11 +8,10 @@ import moment from 'moment'
 import { getAllUsers, updateAccount, updateAccountAdmin } from '@/api/account'
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
 import { ERole } from '@/enums/role.enum'
-import { useUserFromCache } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 import { TSorting } from '@/types/api.types'
 
-const Users = () => {
+const Admins = () => {
   const [users, setUsers] = useState<TAccount[]>([])
   const [total, setTotal] = useState(0)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
@@ -22,8 +21,6 @@ const Users = () => {
     page: 0,
     pageSize: 17,
   })
-
-  const user = useUserFromCache()
 
   const getSortParams = (model: GridSortModel): Partial<TSorting> => {
     if (!model.length || !model[0].sort) return {}
@@ -58,6 +55,9 @@ const Users = () => {
         page: paginationModel.page + 1,
         limit: paginationModel.pageSize,
         ...filters,
+        ...{
+          role: ERole.ADMIN,
+        },
       })
 
       const [users, total] = data
@@ -98,8 +98,7 @@ const Users = () => {
         flex: 1,
         type: 'singleSelect',
         valueOptions: [ERole.USER, ERole.ADMIN, ERole.SUPERADMIN],
-
-        editable: user?.role === ERole.SUPERADMIN,
+        editable: true,
       },
       {
         field: '_count',
@@ -129,7 +128,7 @@ const Users = () => {
         width: '100%',
       }}
     >
-      <Typography variant="h3">Manage Users</Typography>
+      <Typography variant="h3">Manage Admins</Typography>
 
       <Box sx={{ width: '100%' }}>
         <GenericDataGrid<TAccount>
@@ -151,4 +150,4 @@ const Users = () => {
   )
 }
 
-export { Users }
+export { Admins }

@@ -4,29 +4,44 @@ import { toast } from 'react-toastify'
 import { Container, Grid, LinearProgress, Typography } from '@mui/material'
 import { BarChart } from '@mui/x-charts'
 
-import { getCompanies } from '@/api/companies'
+import { getAllUsers } from '@/api/account'
+import { getAllCompanies, getCompanies } from '@/api/companies'
 import { LineChart } from '@/components/charts/line-chart'
+import { TAccount } from '@/types/account.types'
 import { TCompany } from '@/types/company.types'
 
 const HomeAdmin = () => {
-  const [data, setData] = useState<TCompany[]>([])
-  const [total, setTotal] = useState(0)
+  const [users, setUsers] = useState<TAccount[]>([])
+  const [totalUsers, setTotalUsers] = useState(0)
+  const [companies, setCompanies] = useState<TCompany[]>([])
+  const [totalCompanies, setTotalCompanies] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const fetchData = async () => {
     try {
       setLoading(true)
-
-      const { data } = await getCompanies({
+      // Загружаем данные компаний
+      const { data: companiesData } = await getAllCompanies({
         allCompanies: true,
         sortDirection: 'asc',
         sortField: 'createdAt',
       })
 
-      const [companies, total] = data
+      const [companies, totalCompanies] = companiesData
 
-      setTotal(total)
-      setData(companies)
+      setTotalCompanies(totalCompanies)
+      setCompanies(companies)
+
+      // Загружаем данные пользователей
+      const { data: usersData } = await getAllUsers({
+        sortDirection: 'asc',
+        sortField: 'createdAt',
+      })
+
+      const [users, totalUsers] = usersData
+
+      setTotalUsers(totalUsers)
+      setUsers(users)
     } catch (error) {
       toast(`Error loading companies: ${(error as any).message}`, { type: 'error' })
     } finally {
@@ -47,27 +62,13 @@ const HomeAdmin = () => {
       <Grid gap={2} display="grid">
         <Grid gridTemplateColumns={'repeat(3, 1fr)'} gap={2} display="grid"></Grid>
 
-        <Typography variant="h3">Total companies: {total}</Typography>
+        <Typography variant="h3">Total Users: {totalUsers}</Typography>
+        <LineChart data={users} />
+        <LineChart data={users} param="updatedAt" />
 
-        <BarChart
-          xAxis={[
-            {
-              scaleType: 'band',
-              data: data.map((item) => `(${item.id}) - ${item.name}`),
-              label: '(ID) Companies',
-            },
-          ]}
-          series={[{ data: [...data.map((item) => item.capital)] }]}
-          height={300}
-          yAxis={[
-            {
-              label: 'Capital ($)',
-              width: 60,
-            },
-          ]}
-        />
-        <LineChart companies={data} />
-        <LineChart companies={data} param="updatedAt" />
+        <Typography variant="h3">Total Сompanies: {totalCompanies}</Typography>
+        <LineChart data={companies} />
+        <LineChart data={companies} param="updatedAt" />
       </Grid>
     )
   }

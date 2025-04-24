@@ -77,8 +77,8 @@ const Home = () => {
             },
           ]}
         />
-        <LineChart companies={data} />
-        <LineChart companies={data} param="updatedAt" />
+        <LineChart data={data} />
+        <LineChart data={data} param="updatedAt" />
       </Grid>
     )
   }
