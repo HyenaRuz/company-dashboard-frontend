@@ -16,8 +16,11 @@ const createCompany = (payload: FormData) =>
 const getCompanies = (params: TPagination & TSorting & { allCompanies: boolean }) =>
   api.get<[TCompany[], number]>(`${BASE_URL}${createQueryString(params)}`)
 
-const updateCompany = async (id: number, payload: FormData) =>
-  api.put<[TCompany[], number]>(`${BASE_URL}/${id}`, payload, {
+const getAllCompanies = (params: TPagination & TSorting & { allCompanies?: boolean }) =>
+  api.get<[TCompany[], number]>(`${BASE_URL}/all${createQueryString(params)}`)
+
+const updateCompany = async (id: number, payload: FormData | TCompany) =>
+  api.put<TCompany>(`${BASE_URL}/${id}`, payload, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -25,4 +28,4 @@ const updateCompany = async (id: number, payload: FormData) =>
 
 const deleteCompany = (id: number) => api.delete(`${BASE_URL}/${id}`)
 
-export { createCompany, getCompanies, deleteCompany, updateCompany }
+export { createCompany, getCompanies, deleteCompany, updateCompany, getAllCompanies }

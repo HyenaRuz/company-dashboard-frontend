@@ -1,20 +1,18 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
-import { getTokensFromLocalStorage } from '@/helpers/localstorage.helper'
+import { ERole } from '@/enums/role.enum'
+import { RouteProtection } from '@/helpers/with-route-protection'
 import { Login } from '@/screens/auth/login'
 import { Signup } from '@/screens/auth/signup'
 import { Companies } from '@/screens/companies'
+import { CompaniesDashboard } from '@/screens/companies-dashboard'
 import { Home } from '@/screens/home'
+import { HomeAdmin } from '@/screens/home-admin'
 import { Profile } from '@/screens/profile'
+import { Users } from '@/screens/users'
 
 import { UserLayout } from '../user-layout/user-layout'
-
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const tokens = getTokensFromLocalStorage()
-
-  return tokens?.accessToken ? children : <Navigate to="/login" replace />
-}
 
 const Layout = () => {
   return (
@@ -25,9 +23,9 @@ const Layout = () => {
       <Route
         path="/"
         element={
-          <PrivateRoute>
+          <RouteProtection requiredRoles={[ERole.USER]}>
             <UserLayout />
-          </PrivateRoute>
+          </RouteProtection>
         }
       >
         <Route path={EAppRoutes.HOME} element={<Home />} />
@@ -35,7 +33,22 @@ const Layout = () => {
         <Route path={EAppRoutes.PROFILE} element={<Profile />} />
       </Route>
 
-      <Route path="*" element={<Navigate to='/home' />} />
+      <Route
+        path="/admin"
+        element={
+          <RouteProtection requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}>
+            <UserLayout />
+          </RouteProtection>
+        }
+      >
+        <Route path={EAppRoutes.HOME} element={<HomeAdmin />} />
+        <Route path={EAppRoutes.COMPANIES} element={<CompaniesDashboard />} />
+        <Route path={EAppRoutes.PROFILE} element={<Profile />} />
+        <Route path={EAppRoutes.USERS} element={<Users />} />
+      </Route>
+
+      <Route path="/admin/*" element={<Navigate to="/admin/home" replace />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   )
 }

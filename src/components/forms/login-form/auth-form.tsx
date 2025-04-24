@@ -36,7 +36,7 @@ const AuthForm = () => {
     loginMutation.mutate(payload, {
       onSuccess: () => {
         toast('You have successfully logged in.', { type: 'success' })
-        navigate(EAppRoutes.DASHBOARD)
+        navigate(EAppRoutes.HOME)
       },
       onError: (error: any) => {
         toast(`Error: ${error?.message}`, { type: 'error' })

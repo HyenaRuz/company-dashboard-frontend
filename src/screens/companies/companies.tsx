@@ -16,7 +16,7 @@ import { TCompany } from '@/types/company.types'
 const Companies = () => {
   const [companies, setCompanies] = useState<TCompany[]>([])
   const [loading, setLoading] = useState(true)
-  const [totalGames, setTotalGames] = useState(0)
+  const [total, setTotal] = useState(0)
   const [searchParams, setSearchParams] = useSearchParams()
   const [formModalOpen, setFormModalOpen] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState<TCompany | null>(null)
@@ -52,7 +52,7 @@ const Companies = () => {
       const [companies, total] = data
 
       setCompanies(companies)
-      setTotalGames(total)
+      setTotal(total)
     } catch (err) {
       toast(`Error loading companies: ${(err as any).message}`, { type: 'error' })
     } finally {
@@ -127,7 +127,7 @@ const Companies = () => {
         {renderContent()}
 
         <Pagination
-          count={Math.ceil(totalGames / DEFAULT_PAGINATION_TAKE)}
+          count={Math.ceil(total / DEFAULT_PAGINATION_TAKE)}
           page={page}
           onChange={(_, value) => handlePageChange(value)}
         />

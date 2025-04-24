@@ -5,6 +5,8 @@ enum EAppRoutes {
   LOGIN = 'login',
   SIGNUP = 'signup',
   PROFILE = 'profile',
+  ADMIN = 'admin',
+  USERS = 'users',
 }
 
 export { EAppRoutes }

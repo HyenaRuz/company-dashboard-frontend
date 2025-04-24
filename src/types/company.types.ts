@@ -7,6 +7,7 @@ type TCompany = {
   accountId: number
   createdAt: Date
   updatedAt: Date
+  deletedAt?: Date
 }
 
 export type { TCompany }

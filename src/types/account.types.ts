@@ -1,13 +1,16 @@
+import { ERole } from '@/enums/role.enum'
+
 import { TCompany } from './company.types'
 
 type TAccount = {
   id: number
-  email: string
-  username: string
-  role: string
+  email?: string
+  username?: string
+  role?: ERole
   avatarUrl?: string
-  createdAt: Date
+  createdAt?: Date
   companiesCount?: number
+  _count?: { companies?: number }
   companies?: TCompany[]
 }
 
