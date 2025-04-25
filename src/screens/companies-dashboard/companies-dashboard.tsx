@@ -109,9 +109,6 @@ const CompaniesDashboard = () => {
         headerName: 'User Email',
         flex: 1,
         renderCell: (params) => params.row.account.email,
-        editable: false,
-        sortable: false,
-        filterable: false,
       },
       {
         field: 'deletedAt',

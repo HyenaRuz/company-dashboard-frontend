@@ -18,6 +18,7 @@ const validationSchema = yup.object({
   username: yup.string().required('Username is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
   role: yup.string().required('Role is required'),
+  deletedAt: yup.date().nullable(),
 })
 
 type TForm = {

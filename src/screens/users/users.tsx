@@ -107,7 +107,7 @@ const Users = () => {
         headerName: 'Companies',
         flex: 1,
         renderCell: (params) => params.row._count?.companies ?? 0,
-        sortable: false,
+        filterable: false,
       },
       {
         field: 'createdAt',
