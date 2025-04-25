@@ -8,17 +8,6 @@ import { getCompanies } from '@/api/companies'
 import { LineChart } from '@/components/charts/line-chart'
 import { TCompany } from '@/types/company.types'
 
-const chartSetting = {
-  yAxis: [
-    {
-      label: 'capital ($)',
-      width: 60,
-    },
-  ],
-  // xAxis: [{ label: 'Company', width: 60 }],
-  height: 300,
-}
-
 const Home = () => {
   const [data, setData] = useState<TCompany[]>([])
   const [total, setTotal] = useState(0)

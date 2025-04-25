@@ -1,25 +1,34 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { Avatar, Box, Container, Stack, Typography } from '@mui/material'
-import { GridColDef, GridFilterModel, GridPaginationModel, GridSortModel } from '@mui/x-data-grid'
+import {
+  GridColDef,
+  GridFilterModel,
+  GridPaginationModel,
+  GridRowParams,
+  GridSortModel,
+} from '@mui/x-data-grid'
 import moment from 'moment'
 
-import { getAllCompanies, updateCompany } from '@/api/companies'
+import { getAllCompanies } from '@/api/companies'
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
-import { TCompany } from '@/types/company.types'
 import { TSorting } from '@/types/api.types'
+import { TCompany } from '@/types/company.types'
 
 const CompaniesDashboard = () => {
   const [companies, setCompanies] = useState<TCompany[]>([])
   const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(true)
+  // const [loading, setLoading] = useState(true)
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 17,
   })
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
+
+  const navigate = useNavigate()
 
   const fetchCompanies = async () => {
     try {
@@ -49,7 +58,7 @@ const CompaniesDashboard = () => {
     } catch (err) {
       toast(`Error loading companies: ${(err as any).message}`, { type: 'error' })
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   }
 
@@ -72,22 +81,16 @@ const CompaniesDashboard = () => {
         field: 'name',
         headerName: 'Name',
         flex: 1,
-        editable: true,
-        type: 'string',
       },
       {
         field: 'service',
         headerName: 'Service',
         flex: 0.5,
-        editable: true,
-        type: 'string',
       },
       {
         field: 'capital',
         headerName: 'Capital',
         flex: 1,
-        editable: true,
-        type: 'number',
       },
       {
         field: 'createdAt',
@@ -102,23 +105,29 @@ const CompaniesDashboard = () => {
         renderCell: (params) => moment(params.row.updatedAt).format('DD.MM.YYYY HH:mm'),
       },
       {
-        field: 'deletedAt',
-        headerName: 'Deleted At',
+        field: 'account',
+        headerName: 'User Email',
         flex: 1,
-        renderCell: (params) => {
-          const value = params.value
-          return value && moment(value).isValid() ? moment(value).format('DD.MM.YYYY HH:mm') : '-'
-        },
+        renderCell: (params) => params.row.account.email,
+        editable: false,
+        sortable: false,
+        filterable: false,
       },
       {
-        field: 'accountId',
-        headerName: 'User ID',
-        flex: 0.5,
-        align: 'center',
+        field: 'deletedAt',
+        headerName: 'Active',
+        type: 'boolean',
+        valueGetter: (value) => !value,
       },
     ],
     [],
   )
+
+  const handleRowClick = (params: GridRowParams<TCompany>) => {
+    const row = params.row
+
+    navigate(`${row.id}`)
+  }
 
   const getSortParams = (model: GridSortModel): Partial<TSorting> => {
     if (!model.length || !model[0].sort) return {}
@@ -154,12 +163,9 @@ const CompaniesDashboard = () => {
           rowIdKey="id"
           paginationModel={paginationModel}
           setPaginationModel={setPaginationModel}
-          onSubmit={async (updatedCompany) => {
-            await updateCompany(updatedCompany.id, updatedCompany)
-            fetchCompanies()
-          }}
           handleFilterChange={(model) => setFilterModel(model)}
           handleSortChange={(model) => setSortModel(model)}
+          onRowClick={handleRowClick}
         />
       </Box>
     </Container>

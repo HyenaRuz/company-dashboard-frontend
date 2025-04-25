@@ -58,7 +58,7 @@ const Modal = ({ open, onClose, title, withClose = true, children, ...rest }: TP
           <Stack width="100%" alignItems="center" gap={2}>
             <Grid container width="100%" justifyContent="center" sx={{ position: 'relative' }}>
               {!!title && (
-                <Typography fontSize="text-2xl" fontWeight="medium" component="h2" align="center">
+                <Typography fontSize='1.5rem' fontWeight="medium" component="h2" align="center">
                   {title}
                 </Typography>
               )}
@@ -72,7 +72,7 @@ const Modal = ({ open, onClose, title, withClose = true, children, ...rest }: TP
               )}
             </Grid>
 
-            <Box overflow="auto" width="100%">
+            <Box overflow="auto" width="100%" paddingTop={1}>
               {children}
             </Box>
           </Stack>

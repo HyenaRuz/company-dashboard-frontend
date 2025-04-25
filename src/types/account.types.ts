@@ -6,10 +6,11 @@ type TAccount = {
   id: number
   email?: string
   username?: string
-  role?: ERole
+  role: ERole
   avatarUrl?: string
   createdAt: Date
   updatedAt: Date
+  deletedAt?: Date | null
   companiesCount?: number
   _count?: { companies?: number }
   companies?: TCompany[]

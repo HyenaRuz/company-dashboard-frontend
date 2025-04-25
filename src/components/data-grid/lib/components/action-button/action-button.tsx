@@ -4,16 +4,21 @@ import { toast } from 'react-toastify'
 import { Check, Save } from '@mui/icons-material'
 import { Box, CircularProgress, Fab } from '@mui/material'
 import { green } from '@mui/material/colors'
-import { GridRenderCellParams } from '@mui/x-data-grid'
+import { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid'
 
-type TProps<T> = {
+type TProps<T extends GridValidRowModel> = {
   params: GridRenderCellParams<T>
   editedRows: Record<string, T>
   onSubmit: (row: T) => Promise<void>
-  setEditedRows: any
+  setEditedRows: React.Dispatch<React.SetStateAction<Record<string, T>>>
 }
 
-const ActionButton = <T,>({ params, editedRows, onSubmit, setEditedRows }: TProps<T>) => {
+const ActionButton = <T extends GridValidRowModel>({
+  params,
+  editedRows,
+  onSubmit,
+  setEditedRows,
+}: TProps<T>) => {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -27,7 +32,13 @@ const ActionButton = <T,>({ params, editedRows, onSubmit, setEditedRows }: TProp
     try {
       await onSubmit(row)
       setSuccess(true)
-      setEditedRows((prev) => ({ ...prev, [rowId]: undefined }))
+      
+      setEditedRows((prev) => {
+        const updatedRows = { ...prev }
+        delete updatedRows[rowId]
+        return updatedRows
+      })
+      
       setTimeout(() => setSuccess(false), 2000)
     } catch (e) {
       toast(`Error: ${(e as any).message}`, { type: 'error' })

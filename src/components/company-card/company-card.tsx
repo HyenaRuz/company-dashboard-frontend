@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
@@ -7,6 +8,7 @@ import { Box, Card, IconButton, Stack } from '@mui/material'
 
 import { deleteCompany } from '@/api/companies'
 import placeholder from '@/assets/placeholder.png'
+import { EAppRoutes } from '@/enums/app-routes.enum'
 import { TCompany } from '@/types/company.types'
 
 import { Popover } from '../popover'
@@ -27,10 +29,10 @@ const CompanyCard = ({
   refreshData,
   onClick,
   setSelectedCompany,
-  ...props
 }: TProps) => {
   const [userControlsAnchorEl, setUserControlsAnchorEl] = useState<HTMLButtonElement | null>(null)
 
+  const navigate = useNavigate()
   const handleDeleteCompany = async () => {
     if (!company) return
 
@@ -53,6 +55,10 @@ const CompanyCard = ({
     if (!onClick) return
     onClick()
     setSelectedCompany?.(company)
+  }
+
+  const handleRowClick = () => {
+    navigate(`/${EAppRoutes.COMPANIES}/${company?.id}`)
   }
 
   return (
@@ -97,7 +103,7 @@ const CompanyCard = ({
             backgroundColor: '#2c2c2e',
           },
         }}
-        onClick={addCompany ? onClick : undefined}
+        onClick={addCompany ? onClick : handleRowClick}
       >
         {addCompany && (
           <Stack width={'100%'} height="100%" justifyContent="center" alignItems="center" gap={2}>

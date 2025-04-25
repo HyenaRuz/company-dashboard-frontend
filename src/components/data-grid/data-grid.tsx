@@ -1,72 +1,46 @@
-import { useState } from 'react'
-
 import {
   GridColDef,
   GridFilterModel,
   GridPaginationModel,
-  GridRenderCellParams,
+  GridRowParams,
   GridSortModel,
+  GridValidRowModel,
   DataGrid as MuiDataGrid,
 } from '@mui/x-data-grid'
 
-import { ActionButton } from './lib/components/action-button'
-
-type TProps<T> = {
+type TProps<T extends GridValidRowModel> = {
   rows: T[]
   columns: GridColDef<T>[]
   rowIdKey: keyof T
-  onSubmit: (row: T) => Promise<void>
   total: number
   paginationModel: GridPaginationModel
   setPaginationModel: (model: GridPaginationModel) => void
   handleFilterChange?: (model: GridFilterModel) => void
   handleSortChange?: (model: GridSortModel) => void
+  onRowClick?: (params: GridRowParams<T>) => void
 }
 
-const GenericDataGrid = <T,>({
+const GenericDataGrid = <T extends GridValidRowModel>({
   rows,
   columns,
   rowIdKey,
-  onSubmit,
   total,
   paginationModel,
+  onRowClick,
   setPaginationModel,
   handleFilterChange,
   handleSortChange,
 }: TProps<T>) => {
-  const [editedRows, setEditedRows] = useState<Record<string, T>>({})
-
   return (
     <MuiDataGrid
       rows={rows}
-      columns={[
-        ...columns,
-        {
-          field: 'actions',
-          headerName: 'Actions',
-          type: 'actions',
-          renderCell: (params: GridRenderCellParams) => (
-            <ActionButton
-              params={params}
-              editedRows={editedRows}
-              onSubmit={onSubmit}
-              setEditedRows={setEditedRows}
-            />
-          ),
-        },
-      ]}
+      columns={columns}
       getRowId={(row) => row[rowIdKey] as any}
       rowCount={total}
       paginationModel={paginationModel}
       paginationMode="server"
       onPaginationModelChange={setPaginationModel}
-      processRowUpdate={(updatedRow, oldRow) => {
-        if (JSON.stringify(updatedRow) !== JSON.stringify(oldRow)) {
-          const key = String(updatedRow[rowIdKey])
-          setEditedRows((prev) => ({ ...prev, [key]: updatedRow }))
-        }
-        return updatedRow
-      }}
+      onRowClick={onRowClick}
       sx={{
         border: 'none',
         color: 'text.primary',

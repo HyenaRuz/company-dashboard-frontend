@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { Avatar, Box, Container, Stack, Typography } from '@mui/material'
-import { GridColDef, GridFilterModel, GridPaginationModel, GridSortModel } from '@mui/x-data-grid'
+import {
+  GridColDef,
+  GridFilterModel,
+  GridPaginationModel,
+  GridRowParams,
+  GridSortModel,
+} from '@mui/x-data-grid'
 import moment from 'moment'
 
-import { getAllUsers, updateAccount, updateAccountAdmin } from '@/api/account'
+import { getAllUsers } from '@/api/account'
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
-import { ERole } from '@/enums/role.enum'
-import { useUserFromCache } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 import { TSorting } from '@/types/api.types'
 
@@ -17,13 +22,13 @@ const Users = () => {
   const [total, setTotal] = useState(0)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
-  const [loading, setLoading] = useState(true)
+  //   const [loading, setLoading] = useState(true)
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 17,
   })
 
-  const user = useUserFromCache()
+  const navigate = useNavigate()
 
   const getSortParams = (model: GridSortModel): Partial<TSorting> => {
     if (!model.length || !model[0].sort) return {}
@@ -39,7 +44,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      setLoading(true)
+      //   setLoading(true)
 
       const sortParams = getSortParams(sortModel)
 
@@ -67,7 +72,7 @@ const Users = () => {
     } catch (error) {
       toast(`Error loading users: ${(error as any).message}`, { type: 'error' })
     } finally {
-      setLoading(false)
+      //   setLoading(false)
     }
   }
 
@@ -90,16 +95,12 @@ const Users = () => {
         filterable: false,
         width: 60,
       },
-      { field: 'username', headerName: 'Username', flex: 1, editable: true, type: 'string' },
-      { field: 'email', headerName: 'Email', flex: 1, editable: true, type: 'string' },
+      { field: 'username', headerName: 'Username', flex: 1, type: 'string' },
+      { field: 'email', headerName: 'Email', flex: 1, type: 'string' },
       {
         field: 'role',
         headerName: 'Role',
         flex: 1,
-        type: 'singleSelect',
-        valueOptions: [ERole.USER, ERole.ADMIN, ERole.SUPERADMIN],
-
-        editable: user?.role === ERole.SUPERADMIN,
       },
       {
         field: '_count',
@@ -114,40 +115,55 @@ const Users = () => {
         flex: 1,
         renderCell: (params) => moment(params.row.createdAt).format('DD.MM.YYYY HH:mm'),
       },
+      {
+        field: 'deletedAt',
+        headerName: 'Active',
+        type: 'boolean',
+        valueGetter: (value) => !value,
+      },
     ],
     [],
   )
 
-  return (
-    <Container
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 3,
-        px: { xs: 0, sm: 2, md: 3 },
-        width: '100%',
-      }}
-    >
-      <Typography variant="h3">Manage Users</Typography>
+  const handleRowClick = (params: GridRowParams<TAccount>) => {
+    const row = params.row
 
-      <Box sx={{ width: '100%' }}>
-        <GenericDataGrid<TAccount>
-          rows={users}
-          columns={columns}
-          total={total}
-          rowIdKey="id"
-          paginationModel={paginationModel}
-          setPaginationModel={setPaginationModel}
-          onSubmit={async (updatedCompany) => {
-            await updateAccountAdmin(updatedCompany.id, updatedCompany)
-            fetchUsers()
-          }}
-          handleFilterChange={(model) => setFilterModel(model)}
-          handleSortChange={(model) => setSortModel(model)}
-        />
-      </Box>
-    </Container>
+    navigate(`${row.id}`)
+  }
+
+  return (
+    <>
+      <Container
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3,
+          px: { xs: 0, sm: 2, md: 3 },
+          width: '100%',
+        }}
+      >
+        <Typography variant="h3">Manage Users</Typography>
+
+        <Box sx={{ width: '100%' }}>
+          <GenericDataGrid<TAccount>
+            rows={users}
+            columns={columns}
+            total={total}
+            rowIdKey="id"
+            paginationModel={paginationModel}
+            setPaginationModel={setPaginationModel}
+            handleFilterChange={(model) => setFilterModel(model)}
+            handleSortChange={(model) => setSortModel(model)}
+            onRowClick={handleRowClick}
+          />
+        </Box>
+
+        <Box>
+          <Outlet />
+        </Box>
+      </Container>
+    </>
   )
 }
 

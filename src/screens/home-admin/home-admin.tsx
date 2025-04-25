@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 import { Container, Grid, LinearProgress, Typography } from '@mui/material'
-import { BarChart } from '@mui/x-charts'
 
 import { getAllUsers } from '@/api/account'
-import { getAllCompanies, getCompanies } from '@/api/companies'
+import { getAllCompanies } from '@/api/companies'
 import { LineChart } from '@/components/charts/line-chart'
 import { TAccount } from '@/types/account.types'
 import { TCompany } from '@/types/company.types'
@@ -20,7 +19,7 @@ const HomeAdmin = () => {
   const fetchData = async () => {
     try {
       setLoading(true)
-      // Загружаем данные компаний
+
       const { data: companiesData } = await getAllCompanies({
         allCompanies: true,
         sortDirection: 'asc',
@@ -32,7 +31,7 @@ const HomeAdmin = () => {
       setTotalCompanies(totalCompanies)
       setCompanies(companies)
 
-      // Загружаем данные пользователей
+
       const { data: usersData } = await getAllUsers({
         sortDirection: 'asc',
         sortField: 'createdAt',

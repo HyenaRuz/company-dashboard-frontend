@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 import { Avatar, IconButton, LinearProgress, Stack, Typography } from '@mui/material'
 import moment from 'moment'
 
+import { getAccount } from '@/api/account'
 import { ChangePassword } from '@/components/forms/change-password'
 import { ProfileEditForm } from '@/components/forms/profile-edit-form'
+import { NoDataLabel } from '@/components/no-data-label'
 import { Button } from '@/components/ui/button'
 import { InfoItem } from '@/components/ui/info-item'
 import { Modal } from '@/components/ui/modal'
@@ -12,7 +15,7 @@ import { useUser } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 
 export type TDataConfig = {
-  key: string
+  key: keyof TAccount
   lable: string
   format?: any
 }
@@ -27,23 +30,41 @@ const USER_DATA: TDataConfig[] = [
     format: (value: string) => moment(value).format('DD.MM.YYYY HH:mm'),
   },
   { key: 'companiesCount', lable: 'Companies Count' },
+  { key: 'deletedAt', lable: 'Account Active', format: (value: string) => (!value ? 'Yes' : 'No') },
 ]
 
 const Profile = () => {
   const [formModalOpen, setFormModalOpen] = useState(false)
   const [user, setUser] = useState<TAccount | null>(null)
   const [activeForm, setActiveForm] = useState<'edit' | 'password' | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const { data: userData, isLoading } = useUser()
+  const { id } = useParams<{ id: string }>()
+  const { data: userData, isLoading: isUserLoading } = useUser()
+
+  const fetchAccount = async (id: number) => {
+    try {
+      setIsLoading(true)
+      const data = await getAccount(id)
+      setUser(data)
+    } catch (error) {
+      console.error('Error fetching account', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    if (userData) {
+    if (id) {
+      fetchAccount(+id)
+    } else if (userData) {
       setUser(userData)
+      setIsLoading(isUserLoading)
     }
-  }, [userData])
+  }, [id, userData, isUserLoading])
 
-  const closeModal = () => {
-    setFormModalOpen(false)
+  if (!user) {
+    return <NoDataLabel />
   }
 
   const renderContent = () => {
@@ -65,14 +86,27 @@ const Profile = () => {
         <Stack width="100%" gap={4} justifyContent="flex-end">
           <Stack flexDirection="row" justifyContent="space-between">
             <Typography variant="h4">{user?.username}</Typography>
-            <Button
-              onClick={() => {
-                setActiveForm('password')
-                setFormModalOpen(true)
-              }}
-            >
-              Change password
-            </Button>
+
+            <Stack flexDirection="row" gap={2}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setActiveForm('edit')
+                  setFormModalOpen(true)
+                }}
+              >
+                Edit Account
+              </Button>
+
+              <Button
+                onClick={() => {
+                  setActiveForm('password')
+                  setFormModalOpen(true)
+                }}
+              >
+                Change password
+              </Button>
+            </Stack>
           </Stack>
 
           <Stack width="100%" gap={0.5}>
@@ -110,18 +144,19 @@ const Profile = () => {
             setFormModalOpen(false)
             setActiveForm(null)
           }}
+          title="Edit profile"
         >
-          {activeForm === 'edit' && (
+          {activeForm === 'edit' ? (
             <ProfileEditForm
               userData={user}
               setFormModalOpen={() => {
                 setFormModalOpen(false)
                 setActiveForm(null)
               }}
+              adminForm={!!id}
+              refreshData={() => fetchAccount(user.id)}
             />
-          )}
-
-          {activeForm === 'password' && (
+          ) : (
             <ChangePassword
               onClose={() => {
                 setFormModalOpen(false)

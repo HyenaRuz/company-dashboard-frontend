@@ -1,3 +1,5 @@
+import { TAccount } from "./account.types"
+
 type TCompany = {
   id: number
   name: string
@@ -8,6 +10,7 @@ type TCompany = {
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date
+  account: TAccount
 }
 
 export type { TCompany }

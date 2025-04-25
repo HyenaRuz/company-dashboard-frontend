@@ -10,7 +10,7 @@ const useLogout = () => {
 
   return () => {
     localStorage.clear()
-    queryClient.clear()
+    queryClient.invalidateQueries({ queryKey: ['me'] })
 
     navigate(EAppRoutes.LOGIN)
   }

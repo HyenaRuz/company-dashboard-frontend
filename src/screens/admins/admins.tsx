@@ -1,12 +1,20 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { Avatar, Box, Container, Stack, Typography } from '@mui/material'
-import { GridColDef, GridFilterModel, GridPaginationModel, GridSortModel } from '@mui/x-data-grid'
+import {
+  GridColDef,
+  GridFilterModel,
+  GridPaginationModel,
+  GridRowParams,
+  GridSortModel,
+} from '@mui/x-data-grid'
 import moment from 'moment'
 
-import { getAllUsers, updateAccount, updateAccountAdmin } from '@/api/account'
+import { getAllUsers } from '@/api/account'
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
+import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
 import { TAccount } from '@/types/account.types'
 import { TSorting } from '@/types/api.types'
@@ -16,11 +24,13 @@ const Admins = () => {
   const [total, setTotal] = useState(0)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
-  const [loading, setLoading] = useState(true)
+  // const [loading, setLoading] = useState(true)
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 17,
   })
+
+  const navigate = useNavigate()
 
   const getSortParams = (model: GridSortModel): Partial<TSorting> => {
     if (!model.length || !model[0].sort) return {}
@@ -36,7 +46,7 @@ const Admins = () => {
 
   const fetchUsers = async () => {
     try {
-      setLoading(true)
+      // setLoading(true)
 
       const sortParams = getSortParams(sortModel)
 
@@ -67,7 +77,7 @@ const Admins = () => {
     } catch (error) {
       toast(`Error loading users: ${(error as any).message}`, { type: 'error' })
     } finally {
-      setLoading(false)
+      // setLoading(false)
     }
   }
 
@@ -113,9 +123,21 @@ const Admins = () => {
         flex: 1,
         renderCell: (params) => moment(params.row.createdAt).format('DD.MM.YYYY HH:mm'),
       },
+      {
+        field: 'deletedAt',
+        headerName: 'Active',
+        type: 'boolean',
+        valueGetter: (value) => !value,
+      },
     ],
     [],
   )
+
+  const handleRowClick = (params: GridRowParams<TAccount>) => {
+    const row = params.row
+
+    navigate(`/${EAppRoutes.USERS}/${row.id}`)
+  }
 
   return (
     <Container
@@ -138,12 +160,9 @@ const Admins = () => {
           rowIdKey="id"
           paginationModel={paginationModel}
           setPaginationModel={setPaginationModel}
-          onSubmit={async (updatedCompany) => {
-            await updateAccountAdmin(updatedCompany.id, updatedCompany)
-            fetchUsers()
-          }}
           handleFilterChange={(model) => setFilterModel(model)}
           handleSortChange={(model) => setSortModel(model)}
+          onRowClick={handleRowClick}
         />
       </Box>
     </Container>

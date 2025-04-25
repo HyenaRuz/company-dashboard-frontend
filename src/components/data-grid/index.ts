@@ -1,1 +1,1 @@
-export { DataGrid } from './data-grid'
+export { GenericDataGrid } from './data-grid'

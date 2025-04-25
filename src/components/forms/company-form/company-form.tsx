@@ -22,6 +22,7 @@ type TForm = {
   name: string
   service: string
   capital: string
+  deletedAt?: Date
 }
 
 type TFormUpdate = TForm & {
@@ -43,6 +44,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
     name: company?.name || '',
     service: company?.service || '',
     capital: `${company?.capital}` || '',
+    deletedAt: company?.deletedAt ? new Date(company.deletedAt) : undefined,
   }
 
   const {
@@ -64,7 +66,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
 
       Object.entries(payload).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, value)
+          formData.append(key, String(value))
         }
       })
 
@@ -88,7 +90,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
 
       Object.entries(payload).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          formData.append(key, value)
+          formData.append(key, String(value))
         }
       })
 
@@ -212,6 +214,31 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
                 helperText={errors.capital?.message}
               />
             )}
+          />
+
+          <Controller
+            name="deletedAt"
+            control={control}
+            render={({ field }) => {
+              const isDeleted = !!field.value
+              const handleToggleDelete = () => {
+                if (isDeleted) {
+                  field.onChange(null)
+                } else {
+                  field.onChange(new Date().toISOString())
+                }
+              }
+
+              return (
+                <Button
+                  variant="outlined"
+                  color={isDeleted ? 'success' : 'error'}
+                  onClick={handleToggleDelete}
+                >
+                  {isDeleted ? 'Restore Company' : 'Delete Company'}
+                </Button>
+              )
+            }}
           />
 
           <Button type="submit" variant="contained">

@@ -3,11 +3,13 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
 import { RouteProtection } from '@/helpers/with-route-protection'
+import { useUser, useUserFromCache } from '@/hooks/query-client'
 import { Admins } from '@/screens/admins'
 import { Login } from '@/screens/auth/login'
 import { Signup } from '@/screens/auth/signup'
 import { Companies } from '@/screens/companies'
 import { CompaniesDashboard } from '@/screens/companies-dashboard'
+import { Company } from '@/screens/company'
 import { Home } from '@/screens/home'
 import { HomeAdmin } from '@/screens/home-admin'
 import { Profile } from '@/screens/profile'
@@ -16,6 +18,9 @@ import { Users } from '@/screens/users'
 import { UserLayout } from '../user-layout/user-layout'
 
 const Layout = () => {
+  const cachedUser = useUserFromCache()
+  const { data: user } = useUser({ enabled: !cachedUser })
+
   return (
     <Routes>
       <Route path={EAppRoutes.LOGIN} element={<Login />} />
@@ -24,28 +29,39 @@ const Layout = () => {
       <Route
         path="/"
         element={
-          <RouteProtection requiredRoles={[ERole.USER]}>
+          <RouteProtection>
             <UserLayout />
           </RouteProtection>
         }
       >
-        <Route path={EAppRoutes.HOME} element={<Home />} />
-        <Route path={EAppRoutes.COMPANIES} element={<Companies />} />
-        <Route path={EAppRoutes.PROFILE} element={<Profile />} />
-      </Route>
+        <Route
+          path={EAppRoutes.HOME}
+          element={user?.role === ERole.USER ? <Home /> : <HomeAdmin />}
+        />
+        <Route
+          path={EAppRoutes.COMPANIES}
+          element={user?.role === ERole.USER ? <Companies /> : <CompaniesDashboard />}
+        />
+        <Route path={`${EAppRoutes.COMPANIES}/:id`} element={<Company />} />
 
-      <Route
-        path="/admin"
-        element={
-          <RouteProtection requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}>
-            <UserLayout />
-          </RouteProtection>
-        }
-      >
-        <Route path={EAppRoutes.HOME} element={<HomeAdmin />} />
-        <Route path={EAppRoutes.COMPANIES} element={<CompaniesDashboard />} />
         <Route path={EAppRoutes.PROFILE} element={<Profile />} />
-        <Route path={EAppRoutes.USERS} element={<Users />} />
+
+        <Route
+          path={EAppRoutes.USERS}
+          element={
+            <RouteProtection requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}>
+              <Users />
+            </RouteProtection>
+          }
+        />
+        <Route
+          path={`${EAppRoutes.USERS}/:id`}
+          element={
+            <RouteProtection requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}>
+              <Profile />
+            </RouteProtection>
+          }
+        />
         <Route
           path={EAppRoutes.ADMINS}
           element={
@@ -56,7 +72,6 @@ const Layout = () => {
         />
       </Route>
 
-      <Route path="/admin/*" element={<Navigate to="/admin/home" replace />} />
       <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   )

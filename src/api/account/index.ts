@@ -16,16 +16,24 @@ const getMe = async () => {
   const { data } = await api.get<TAccount>(`${BASE_URL}`)
   return data
 }
+const getAccount = async (id: number) => {
+  const { data } = await api.get<TAccount>(`${BASE_URL}/${id}`)
+  return data
+}
 
-const updateAccount = async (payload: FormData) =>
+const updateAccount = async (payload: FormData | TAccount) =>
   api.put<TAccount>(`${BASE_URL}`, payload, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
 
-const updateAccountAdmin = async (id: number, payload: TAccount) =>
-  api.put<TAccount>(`${BASE_URL}/admin/${id}`, payload)
+const updateAccountAdmin = async (id: number, payload: FormData | TAccount) =>
+  api.put<TAccount>(`${BASE_URL}/admin/${id}`, payload, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
 
 const updateAccountPassword = async (payload: TChangePassword) => {
   await api.put(`${BASE_URL}/me/password`, payload)
@@ -45,4 +53,5 @@ export {
   updateAccountPassword,
   getAllUsers,
   updateAccountAdmin,
+  getAccount,
 }
