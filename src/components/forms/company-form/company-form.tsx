@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Stack } from '@mui/material'
 import * as yup from 'yup'
 
-import { createCompany, updateCompany } from '@/api/companies'
+import { createCompany, deleteCompany, recoverCompany, updateCompany } from '@/api/companies'
 import placeholder from '@/assets/placeholder.png'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
+import { EAppRoutes } from '@/enums/app-routes.enum'
+import { ERole } from '@/enums/role.enum'
+import { useUserFromCache } from '@/hooks/query-client'
 import { TCompany } from '@/types/company.types'
 
 const validationSchema = yup.object({
@@ -39,6 +43,9 @@ type TProps = {
 const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) => {
   const [preview, setPreview] = useState<string | null>(null)
 
+  const user = useUserFromCache()
+  const navigate = useNavigate()
+
   const fileRef = useRef<HTMLInputElement>(null)
   const defaultValues = {
     name: company?.name || '',
@@ -49,9 +56,8 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
 
   const {
     control,
-    handleSubmit,
     setValue,
-
+    handleSubmit,
     formState: { errors },
   } = useForm<TForm | TFormUpdate>({
     defaultValues,
@@ -96,6 +102,8 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
 
       if (file) formData.append('logo', file)
 
+      console.log(formData)
+
       await updateCompany(company?.id!, formData)
 
       onClose()
@@ -104,6 +112,40 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
       toast('You have registered successfully.', { type: 'success' })
     } catch (err) {
       toast(`Error: ${(err as any).message}`, { type: 'error' })
+    }
+  }
+
+  const deleteSubmit = async () => {
+    if (!company) return
+
+    try {
+      await deleteCompany(company?.id)
+
+      onClose()
+      reloadData()
+
+      if (user?.role === ERole.USER) {
+        navigate(`/${EAppRoutes.COMPANIES}`, { replace: true })
+      }
+
+      toast('Company deleted', { type: 'success' })
+    } catch (error) {
+      toast('Error deleting company', { type: 'error' })
+    }
+  }
+
+  const recoverSubmit = async () => {
+    if (!company) return
+
+    try {
+      await recoverCompany(company?.id)
+
+      onClose()
+      reloadData()
+
+      toast('Company recover', { type: 'success' })
+    } catch (error) {
+      toast('Error deleting company', { type: 'error' })
     }
   }
 
@@ -125,11 +167,10 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
     }
   }, [company])
 
+  const selectingSubmit = type === 'create' ? createSubmit : updateSubmit
+
   return (
-    <form
-      onSubmit={handleSubmit(type === 'create' ? createSubmit : updateSubmit)}
-      style={{ width: '100%' }}
-    >
+    <form style={{ width: '100%' }}>
       <Stack spacing={2} alignItems="center">
         <Box
           component="img"
@@ -216,32 +257,19 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
             )}
           />
 
-          <Controller
-            name="deletedAt"
-            control={control}
-            render={({ field }) => {
-              const isDeleted = !!field.value
-              const handleToggleDelete = () => {
-                if (isDeleted) {
-                  field.onChange(null)
-                } else {
-                  field.onChange(new Date().toISOString())
-                }
-              }
+          <Button
+            variant="outlined"
+            color={company?.deletedAt ? 'success' : 'error'}
+            onClick={company?.deletedAt ? recoverSubmit : deleteSubmit}
+          >
+            {company?.deletedAt ? 'Restore Company' : 'Delete Company'}
+          </Button>
 
-              return (
-                <Button
-                  variant="outlined"
-                  color={isDeleted ? 'success' : 'error'}
-                  onClick={handleToggleDelete}
-                >
-                  {isDeleted ? 'Restore Company' : 'Delete Company'}
-                </Button>
-              )
-            }}
-          />
-
-          <Button type="submit" variant="contained">
+          <Button
+            type="button"
+            variant="contained"
+            onClick={handleSubmit(type === 'create' ? createSubmit : updateSubmit)}
+          >
             {type === 'create' ? 'Create' : 'Update'}
           </Button>
         </Stack>

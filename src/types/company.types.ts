@@ -1,4 +1,5 @@
-import { TAccount } from "./account.types"
+import { TAccount } from './account.types'
+import { THistory } from './history.type'
 
 type TCompany = {
   id: number
@@ -11,6 +12,7 @@ type TCompany = {
   updatedAt: Date
   deletedAt?: Date
   account: TAccount
+  historyLogs?: THistory[]
 }
 
 export type { TCompany }

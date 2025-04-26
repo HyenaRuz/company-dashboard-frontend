@@ -35,6 +35,10 @@ const updateAccountAdmin = async (id: number, payload: FormData | TAccount) =>
     },
   })
 
+const deleteAccount = async (id: number) => await api.delete(`${BASE_URL}/${id}`)
+
+const recoverAccount = async (id: number) => await api.patch(`${BASE_URL}/${id}/recover`)
+
 const updateAccountPassword = async (payload: TChangePassword) => {
   await api.put(`${BASE_URL}/me/password`, payload)
 }
@@ -54,4 +58,6 @@ export {
   getAllUsers,
   updateAccountAdmin,
   getAccount,
+  deleteAccount,
+  recoverAccount,
 }

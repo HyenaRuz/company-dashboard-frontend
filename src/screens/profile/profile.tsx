@@ -7,10 +7,12 @@ import moment from 'moment'
 import { getAccount } from '@/api/account'
 import { ChangePassword } from '@/components/forms/change-password'
 import { ProfileEditForm } from '@/components/forms/profile-edit-form'
+import { HistoryGrid } from '@/components/history-grid'
 import { NoDataLabel } from '@/components/no-data-label'
 import { Button } from '@/components/ui/button'
 import { InfoItem } from '@/components/ui/info-item'
 import { Modal } from '@/components/ui/modal'
+import { ERole } from '@/enums/role.enum'
 import { useUser } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 
@@ -130,12 +132,18 @@ const Profile = () => {
   }
 
   return (
-    <Stack
-      flexDirection={{ xs: 'column', sm: 'row', md: 'row' }}
-      justifyContent="space-between"
-      gap={4}
-    >
-      {renderContent()}
+    <Stack gap={4}>
+      <Stack
+        flexDirection={{ xs: 'column', sm: 'row', md: 'row' }}
+        justifyContent="space-between"
+        gap={4}
+      >
+        {renderContent()}
+      </Stack>
+
+      {userData?.role !== ERole.USER && user?.targetHistories && (
+        <HistoryGrid data={user?.targetHistories} />
+      )}
 
       {user && (
         <Modal

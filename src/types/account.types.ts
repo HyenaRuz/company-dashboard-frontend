@@ -1,6 +1,7 @@
 import { ERole } from '@/enums/role.enum'
 
 import { TCompany } from './company.types'
+import { THistory } from './history.type'
 
 type TAccount = {
   id: number
@@ -14,6 +15,9 @@ type TAccount = {
   companiesCount?: number
   _count?: { companies?: number }
   companies?: TCompany[]
+  historyLogs?: THistory[]
+  actingHistories?: THistory[]
+  targetHistories?: THistory[]
 }
 
 type TChangePassword = {

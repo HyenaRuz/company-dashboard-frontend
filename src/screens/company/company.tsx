@@ -8,10 +8,13 @@ import moment from 'moment'
 import { getCompany } from '@/api/companies'
 import placeholder from '@/assets/placeholder.png'
 import { CompanyForm } from '@/components/forms/company-form'
+import { HistoryGrid } from '@/components/history-grid'
 import { Button } from '@/components/ui/button'
 import { InfoItem } from '@/components/ui/info-item'
 import { Modal } from '@/components/ui/modal'
 import { EAppRoutes } from '@/enums/app-routes.enum'
+import { ERole } from '@/enums/role.enum'
+import { useUserFromCache } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 import { TCompany } from '@/types/company.types'
 
@@ -67,6 +70,7 @@ const Company = () => {
 
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const user = useUserFromCache()
 
   const fetchCompany = async (id: number) => {
     try {
@@ -158,8 +162,13 @@ const Company = () => {
   }
 
   return (
-    <Container>
+    <Stack gap={4}>
       {renderContent()}
+
+      {user?.role !== ERole.USER && company?.historyLogs && (
+        <HistoryGrid data={company?.historyLogs} />
+      )}
+
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <CompanyForm
           onClose={() => setFormModalOpen(false)}
@@ -168,7 +177,7 @@ const Company = () => {
           type="update"
         />
       </Modal>
-    </Container>
+    </Stack>
   )
 }
 

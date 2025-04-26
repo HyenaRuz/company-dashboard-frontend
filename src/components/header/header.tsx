@@ -1,6 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 
+import AddModeratorIcon from '@mui/icons-material/AddModerator'
+import BusinessIcon from '@mui/icons-material/Business'
 import HomeIcon from '@mui/icons-material/Home'
+import PeopleIcon from '@mui/icons-material/People'
 import { AppBar, Grid, MenuItem, Toolbar, Typography } from '@mui/material'
 import cn from 'classnames'
 
@@ -13,12 +16,17 @@ import styles from './styles.module.scss'
 
 const HEADER_LINKS = [
   { label: 'Home', path: EAppRoutes.HOME, icon: HomeIcon },
-  { label: 'Companies', path: EAppRoutes.COMPANIES, icon: HomeIcon },
-  { label: 'Users', path: EAppRoutes.USERS, icon: HomeIcon, role: [ERole.ADMIN, ERole.SUPERADMIN] },
+  { label: 'Companies', path: EAppRoutes.COMPANIES, icon: BusinessIcon },
+  {
+    label: 'Users',
+    path: EAppRoutes.USERS,
+    icon: PeopleIcon,
+    role: [ERole.ADMIN, ERole.SUPERADMIN],
+  },
   {
     label: 'Admins',
     path: EAppRoutes.ADMINS,
-    icon: HomeIcon,
+    icon: AddModeratorIcon,
     role: [ERole.SUPERADMIN],
   },
 ]

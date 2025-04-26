@@ -26,8 +26,18 @@ const updateCompany = async (id: number, payload: FormData | TCompany) =>
     },
   })
 
-const deleteCompany = (id: number) => api.delete(`${BASE_URL}/${id}`)
+const deleteCompany = async (id: number) => await api.delete(`${BASE_URL}/${id}`)
+
+const recoverCompany = async (id: number) => await api.patch(`${BASE_URL}/${id}/recover`)
 
 const getCompany = async (id: number) => await api.get<TCompany>(`${BASE_URL}/${id}`)
 
-export { createCompany, getCompanies, deleteCompany, updateCompany, getAllCompanies, getCompany }
+export {
+  createCompany,
+  getCompanies,
+  deleteCompany,
+  updateCompany,
+  getAllCompanies,
+  getCompany,
+  recoverCompany,
+}

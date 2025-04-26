@@ -7,7 +7,7 @@ import { Avatar, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/m
 import { useQueryClient } from '@tanstack/react-query'
 import * as yup from 'yup'
 
-import { updateAccount, updateAccountAdmin } from '@/api/account'
+import { deleteAccount, recoverAccount, updateAccount, updateAccountAdmin } from '@/api/account'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
 import { ERole } from '@/enums/role.enum'
@@ -18,14 +18,12 @@ const validationSchema = yup.object({
   username: yup.string().required('Username is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
   role: yup.string().required('Role is required'),
-  deletedAt: yup.date().nullable(),
 })
 
 type TForm = {
   username: string
   email: string
-  role: ERole
-  deletedAt?: Date
+  role: string
 }
 
 type TFormUpdate = TForm & {
@@ -51,15 +49,14 @@ const ProfileEditForm = ({
 
   const {
     control,
-    handleSubmit,
     setValue,
+    handleSubmit,
     formState: { errors },
   } = useForm<TForm | TFormUpdate>({
     defaultValues: {
       username: userData.username,
       email: userData.email,
       role: userData.role,
-      deletedAt: userData?.deletedAt ? new Date(userData.deletedAt) : undefined,
     },
     resolver: yupResolver(validationSchema),
   })
@@ -114,6 +111,31 @@ const ProfileEditForm = ({
     }
   }
 
+  const submitDelete = async () => {
+    try {
+      await deleteAccount(userData!.id)
+
+      refreshData && refreshData()
+
+      setFormModalOpen()
+      toast('Account deleted successfully.', { type: 'success' })
+    } catch (err) {
+      toast(`Error: ${(err as any).message}`, { type: 'error' })
+    }
+  }
+  const submitRecover = async () => {
+    try {
+      await recoverAccount(userData!.id)
+
+      refreshData && refreshData()
+
+      setFormModalOpen()
+      toast('Account deleted successfully.', { type: 'success' })
+    } catch (err) {
+      toast(`Error: ${(err as any).message}`, { type: 'error' })
+    }
+  }
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -132,10 +154,8 @@ const ProfileEditForm = ({
     }
   }, [userData])
 
-  const selectingSubmit = adminForm ? submitAdmin : submitUser
-
   return (
-    <form onSubmit={handleSubmit(selectingSubmit)} style={{ width: '100%' }}>
+    <form style={{ width: '100%' }}>
       <Stack spacing={2} alignItems="center">
         {!adminForm && (
           <>
@@ -225,35 +245,21 @@ const ProfileEditForm = ({
                 />
               )}
 
-              <Controller
-                name="deletedAt"
-                control={control}
-                render={({ field }) => {
-                  const isDeleted = !!field.value
-
-                  const handleToggleDelete = () => {
-                    if (isDeleted) {
-                      field.onChange(null)
-                    } else {
-                      field.onChange(new Date().toISOString())
-                    }
-                  }
-
-                  return (
-                    <Button
-                      variant="outlined"
-                      color={isDeleted ? 'success' : 'error'}
-                      onClick={handleToggleDelete}
-                    >
-                      {isDeleted ? 'Restore User' : 'Delete User'}
-                    </Button>
-                  )
-                }}
-              />
+              <Button
+                variant="outlined"
+                color={userData?.deletedAt ? 'success' : 'error'}
+                onClick={userData?.deletedAt ? submitRecover : submitDelete}
+              >
+                {userData?.deletedAt ? 'Restore User' : 'Delete User'}
+              </Button>
             </>
           )}
 
-          <Button type="submit" variant="contained">
+          <Button
+            type="submit"
+            variant="contained"
+            onClick={handleSubmit(adminForm ? submitAdmin : submitUser)}
+          >
             Update
           </Button>
         </Stack>
