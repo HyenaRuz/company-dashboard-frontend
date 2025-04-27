@@ -17,8 +17,8 @@ const validationSchema = yup.object({
 })
 
 const AuthForm = () => {
-  const navigate = useNavigate()
   const loginMutation = useLogin()
+  const navigate = useNavigate()
 
   const {
     control,
@@ -45,7 +45,7 @@ const AuthForm = () => {
   }
 
   return (
-    <form style={{ width: '100%', maxWidth: '300px' }}>
+    <form style={{ width: '100%', maxWidth: '300px' }} onSubmit={handleSubmit(submit)}>
       <Stack spacing={2} alignItems="center">
         <Controller
           name="login"
@@ -80,7 +80,7 @@ const AuthForm = () => {
           )}
         />
 
-        <Button type="submit" variant="contained" onClick={handleSubmit(submit)}>
+        <Button type="submit" variant="contained">
           Login
         </Button>
         <Typography>{"Don't have an account?"}</Typography>

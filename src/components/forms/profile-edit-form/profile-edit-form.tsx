@@ -155,7 +155,7 @@ const ProfileEditForm = ({
   }, [userData])
 
   return (
-    <form style={{ width: '100%' }}>
+    <form style={{ width: '100%' }} onSubmit={handleSubmit(adminForm ? submitAdmin : submitUser)}>
       <Stack spacing={2} alignItems="center">
         {!adminForm && (
           <>
@@ -246,6 +246,7 @@ const ProfileEditForm = ({
               )}
 
               <Button
+                type="button"
                 variant="outlined"
                 color={userData?.deletedAt ? 'success' : 'error'}
                 onClick={userData?.deletedAt ? submitRecover : submitDelete}
@@ -255,11 +256,7 @@ const ProfileEditForm = ({
             </>
           )}
 
-          <Button
-            type="submit"
-            variant="contained"
-            onClick={handleSubmit(adminForm ? submitAdmin : submitUser)}
-          >
+          <Button type="submit" variant="contained">
             Update
           </Button>
         </Stack>

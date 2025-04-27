@@ -174,7 +174,9 @@ const SignupForm = () => {
         </Stack>
 
         <Typography>Do you already have an account?</Typography>
-        <Button onClick={() => navigate(EAppRoutes.LOGIN)}>Login</Button>
+        <Button type="button" onClick={() => navigate(EAppRoutes.LOGIN)}>
+          Login
+        </Button>
       </Stack>
     </form>
   )

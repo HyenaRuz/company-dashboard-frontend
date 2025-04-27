@@ -1,19 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { Avatar, Box, Container, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import {
-  GridColDef,
   GridFilterModel,
   GridPaginationModel,
   GridRowParams,
   GridSortModel,
 } from '@mui/x-data-grid'
-import moment from 'moment'
 
 import { getAllUsers } from '@/api/account'
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
+import userColums from '@/components/data-grid/lib/constants/user-colums'
 import { TAccount } from '@/types/account.types'
 import { TSorting } from '@/types/api.types'
 
@@ -41,6 +40,16 @@ const Users = () => {
       sortDirection: sort,
     }
   }
+
+  const filters = filterModel.items
+    .filter((item) => !!item.value)
+    .reduce(
+      (acc, item) => {
+        acc[item.field] = item.value
+        return acc
+      },
+      {} as Record<string, string>,
+    )
 
   const fetchUsers = async () => {
     try {
@@ -80,51 +89,6 @@ const Users = () => {
     fetchUsers()
   }, [paginationModel, filterModel, sortModel])
 
-  const columns = useMemo<GridColDef<TAccount>[]>(
-    () => [
-      { field: 'id', headerName: 'ID', flex: 0.5 },
-      {
-        field: 'avatarUrl',
-        headerName: 'Logo',
-        renderCell: (params) => (
-          <Stack width="100%" height="100%" justifyContent="center" alignItems="center">
-            <Avatar src={params.row.avatarUrl} />
-          </Stack>
-        ),
-        sortable: false,
-        filterable: false,
-        width: 60,
-      },
-      { field: 'username', headerName: 'Username', flex: 1, type: 'string' },
-      { field: 'email', headerName: 'Email', flex: 1, type: 'string' },
-      {
-        field: 'role',
-        headerName: 'Role',
-        flex: 1,
-      },
-      {
-        field: '_count',
-        headerName: 'Companies',
-        flex: 1,
-        renderCell: (params) => params.row._count?.companies ?? 0,
-        filterable: false,
-      },
-      {
-        field: 'createdAt',
-        headerName: 'Created At',
-        flex: 1,
-        renderCell: (params) => moment(params.row.createdAt).format('DD.MM.YYYY HH:mm'),
-      },
-      {
-        field: 'deletedAt',
-        headerName: 'Active',
-        type: 'boolean',
-        valueGetter: (value) => !value,
-      },
-    ],
-    [],
-  )
-
   const handleRowClick = (params: GridRowParams<TAccount>) => {
     const row = params.row
 
@@ -133,7 +97,7 @@ const Users = () => {
 
   return (
     <>
-      <Container
+      <Stack
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -148,8 +112,8 @@ const Users = () => {
         <Box sx={{ width: '100%' }}>
           <GenericDataGrid<TAccount>
             rows={users}
-            columns={columns}
             total={total}
+            columns={userColums}
             rowIdKey="id"
             paginationModel={paginationModel}
             setPaginationModel={setPaginationModel}
@@ -162,7 +126,7 @@ const Users = () => {
         <Box>
           <Outlet />
         </Box>
-      </Container>
+      </Stack>
     </>
   )
 }

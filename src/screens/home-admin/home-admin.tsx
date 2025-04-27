@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
-import { Container, Grid, LinearProgress, Typography } from '@mui/material'
+import { Container, Grid, LinearProgress, Stack, Typography } from '@mui/material'
 
 import { getAllUsers } from '@/api/account'
 import { getAllCompanies } from '@/api/companies'
@@ -72,7 +72,7 @@ const HomeAdmin = () => {
     )
   }
 
-  return <Container>{renderContent()}</Container>
+  return <Stack>{renderContent()}</Stack>
 }
 
 export { HomeAdmin }

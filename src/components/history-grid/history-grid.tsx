@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
-import { Box, Container, Typography } from '@mui/material'
-import { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
-import moment from 'moment'
+import { Box, Stack, Typography } from '@mui/material'
+import { GridPaginationModel } from '@mui/x-data-grid'
 
 import { THistory } from '@/types/history.type'
 
 import { GenericDataGrid } from '../data-grid'
+import historyColums from '../data-grid/lib/constants/history-colums'
 
 const HistoryGrid = ({ data }: { data: THistory[] }) => {
   // const [loading, setLoading] = useState(true)
@@ -15,65 +15,8 @@ const HistoryGrid = ({ data }: { data: THistory[] }) => {
     pageSize: 17,
   })
 
-  const columns = useMemo<GridColDef<THistory>[]>(
-    () => [
-      { field: 'id', headerName: 'ID', flex: 0.3, align: 'center', headerAlign: 'center' },
-      {
-        field: 'createdAt',
-        headerName: 'Created At',
-        flex: 0.5,
-        align: 'center',
-        headerAlign: 'center',
-        renderCell: (params) => moment(params.row.createdAt).format('DD.MM.YYYY HH:mm'),
-      },
-      {
-        field: 'actingAccountId',
-        headerName: 'Acting Account',
-        flex: 0.5,
-        align: 'center',
-        headerAlign: 'center',
-      },
-      {
-        field: 'targetAccountId',
-        headerName: 'Target Account',
-        flex: 0.5,
-        align: 'center',
-        headerAlign: 'center',
-      },
-      {
-        field: 'objectCompanyId',
-        headerName: 'Company',
-        flex: 0.5,
-        align: 'center',
-        headerAlign: 'center',
-      },
-      {
-        field: 'objectAccountId',
-        headerName: 'Account',
-        flex: 0.5,
-        align: 'center',
-        headerAlign: 'center',
-      },
-      {
-        field: 'objectType',
-        headerName: 'Object Type',
-        flex: 0.5,
-        align: 'center',
-        headerAlign: 'center',
-      },
-      {
-        field: 'ip',
-        headerName: 'IP Address',
-        flex: 0.4,
-        align: 'center',
-        headerAlign: 'center',
-      },
-    ],
-    [data],
-  )
-
   return (
-    <Container
+    <Stack
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -86,14 +29,14 @@ const HistoryGrid = ({ data }: { data: THistory[] }) => {
       <Box sx={{ width: '100%' }}>
         <GenericDataGrid<THistory>
           rows={data}
-          columns={columns}
+          columns={historyColums}
           total={data.length}
           rowIdKey="id"
           paginationModel={paginationModel}
           setPaginationModel={setPaginationModel}
         />
       </Box>
-    </Container>
+    </Stack>
   )
 }
 

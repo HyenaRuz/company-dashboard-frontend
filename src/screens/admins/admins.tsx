@@ -1,19 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { Avatar, Box, Container, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import {
-  GridColDef,
   GridFilterModel,
   GridPaginationModel,
   GridRowParams,
   GridSortModel,
 } from '@mui/x-data-grid'
-import moment from 'moment'
 
 import { getAllUsers } from '@/api/account'
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
+import userColums from '@/components/data-grid/lib/constants/user-colums'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
 import { TAccount } from '@/types/account.types'
@@ -85,54 +84,6 @@ const Admins = () => {
     fetchUsers()
   }, [paginationModel, filterModel, sortModel])
 
-  const columns = useMemo<GridColDef<TAccount>[]>(
-    () => [
-      { field: 'id', headerName: 'ID', flex: 0.5 },
-      {
-        field: 'avatarUrl',
-        headerName: 'Logo',
-        renderCell: (params) => (
-          <Stack width="100%" height="100%" justifyContent="center" alignItems="center">
-            <Avatar src={params.row.avatarUrl} />
-          </Stack>
-        ),
-        sortable: false,
-        filterable: false,
-        width: 60,
-      },
-      { field: 'username', headerName: 'Username', flex: 1, editable: true, type: 'string' },
-      { field: 'email', headerName: 'Email', flex: 1, editable: true, type: 'string' },
-      {
-        field: 'role',
-        headerName: 'Role',
-        flex: 1,
-        type: 'singleSelect',
-        valueOptions: [ERole.USER, ERole.ADMIN, ERole.SUPERADMIN],
-        editable: true,
-      },
-      {
-        field: '_count',
-        headerName: 'Companies',
-        flex: 1,
-        renderCell: (params) => params.row._count?.companies ?? 0,
-        sortable: false,
-      },
-      {
-        field: 'createdAt',
-        headerName: 'Created At',
-        flex: 1,
-        renderCell: (params) => moment(params.row.createdAt).format('DD.MM.YYYY HH:mm'),
-      },
-      {
-        field: 'deletedAt',
-        headerName: 'Active',
-        type: 'boolean',
-        valueGetter: (value) => !value,
-      },
-    ],
-    [],
-  )
-
   const handleRowClick = (params: GridRowParams<TAccount>) => {
     const row = params.row
 
@@ -140,7 +91,7 @@ const Admins = () => {
   }
 
   return (
-    <Container
+    <Stack
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -155,7 +106,7 @@ const Admins = () => {
       <Box sx={{ width: '100%' }}>
         <GenericDataGrid<TAccount>
           rows={users}
-          columns={columns}
+          columns={userColums}
           total={total}
           rowIdKey="id"
           paginationModel={paginationModel}
@@ -165,7 +116,7 @@ const Admins = () => {
           onRowClick={handleRowClick}
         />
       </Box>
-    </Container>
+    </Stack>
   )
 }
 

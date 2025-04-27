@@ -2,17 +2,17 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
-import { RouteProtection } from '@/helpers/with-route-protection'
+import { RouteProtection } from '@/helpers/route-protection'
 import { useUser, useUserFromCache } from '@/hooks/query-client'
 import { Admins } from '@/screens/admins'
 import { Login } from '@/screens/auth/login'
 import { Signup } from '@/screens/auth/signup'
-import { Companies } from '@/screens/companies'
 import { CompaniesDashboard } from '@/screens/companies-dashboard'
 import { Company } from '@/screens/company'
-import { Home } from '@/screens/home'
 import { HomeAdmin } from '@/screens/home-admin'
+import { HomeUser } from '@/screens/home-user/home-user'
 import { Profile } from '@/screens/profile'
+import { UserCompanies } from '@/screens/user-companies/user-companies'
 import { Users } from '@/screens/users'
 
 import { UserLayout } from '../user-layout/user-layout'
@@ -36,11 +36,11 @@ const Layout = () => {
       >
         <Route
           path={EAppRoutes.HOME}
-          element={user?.role === ERole.USER ? <Home /> : <HomeAdmin />}
+          element={user?.role === ERole.USER ? <HomeUser /> : <HomeAdmin />}
         />
         <Route
           path={EAppRoutes.COMPANIES}
-          element={user?.role === ERole.USER ? <Companies /> : <CompaniesDashboard />}
+          element={user?.role === ERole.USER ? <UserCompanies /> : <CompaniesDashboard />}
         />
         <Route path={`${EAppRoutes.COMPANIES}/:id`} element={<Company />} />
 
@@ -70,9 +70,9 @@ const Layout = () => {
             </RouteProtection>
           }
         />
-      </Route>
 
-      <Route path="*" element={<Navigate to="/home" replace />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Route>
     </Routes>
   )
 }

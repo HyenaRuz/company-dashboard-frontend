@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import { getTokensFromLocalStorage, setTokenToLocalStorage } from '@/helpers/localstorage.helper'
-import { useLogout } from '@/helpers/logout'
+import { logout } from '@/helpers/logout'
 
 import { refreshTokens } from './auth'
 
@@ -43,10 +43,10 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
           return api(originalRequest)
         } catch (err) {
-          useLogout()
+          logout()
         }
       } else {
-        useLogout()
+        logout()
       }
     }
 

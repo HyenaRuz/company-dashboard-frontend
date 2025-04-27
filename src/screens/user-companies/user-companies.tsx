@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { Container, Grid, LinearProgress, Pagination } from '@mui/material'
+import { Container, Grid, LinearProgress, Pagination, Stack } from '@mui/material'
 
 import { getCompanies } from '@/api/companies'
 import { CompanyCard } from '@/components/company-card'
@@ -13,7 +13,7 @@ import { DEFAULT_PAGINATION_TAKE } from '@/constants'
 import { useDebounce } from '@/hooks/useDebounce.hook'
 import { TCompany } from '@/types/company.types'
 
-const Companies = () => {
+const UserCompanies = () => {
   const [companies, setCompanies] = useState<TCompany[]>([])
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
@@ -25,14 +25,15 @@ const Companies = () => {
     setFormModalOpen(false)
     setSelectedCompany(null)
   }
-
-  const filters = {
-    name: searchParams.get('name') || '',
-    sortField: searchParams.get('sortField') || 'name',
-    sortDirection: (searchParams.get('sortDirection') as 'asc' | 'desc') || 'asc',
-    page: Number(searchParams.get('page')) || 1,
-    createdAt: searchParams.get('createdAt') || '',
-  }
+  const filters = useMemo(() => {
+    return {
+      name: searchParams.get('name') || '',
+      sortField: searchParams.get('sortField') || 'name',
+      sortDirection: (searchParams.get('sortDirection') as 'asc' | 'desc') || 'asc',
+      page: Number(searchParams.get('page')) || 1,
+      createdAt: searchParams.get('createdAt') || '',
+    }
+  }, [searchParams])
 
   const page = Number(searchParams.get('page')) || 1
 
@@ -106,7 +107,7 @@ const Companies = () => {
 
   return (
     <>
-      <Container
+      <Stack
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -131,7 +132,7 @@ const Companies = () => {
           page={page}
           onChange={(_, value) => handlePageChange(value)}
         />
-      </Container>
+      </Stack>
 
       <Modal open={formModalOpen} onClose={closeModal}>
         <CompanyForm
@@ -145,4 +146,4 @@ const Companies = () => {
   )
 }
 
-export { Companies }
+export { UserCompanies }

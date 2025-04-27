@@ -18,21 +18,21 @@ import { TAccount } from '@/types/account.types'
 
 export type TDataConfig = {
   key: keyof TAccount
-  lable: string
+  label: string
   format?: any
 }
 
 const USER_DATA: TDataConfig[] = [
-  { key: 'email', lable: 'Email' },
-  { key: 'id', lable: 'ID' },
-  { key: 'role', lable: 'Role' },
+  { key: 'email', label: 'Email' },
+  { key: 'id', label: 'ID' },
+  { key: 'role', label: 'Role' },
   {
     key: 'createdAt',
-    lable: 'Created At',
+    label: 'Created At',
     format: (value: string) => moment(value).format('DD.MM.YYYY HH:mm'),
   },
-  { key: 'companiesCount', lable: 'Companies Count' },
-  { key: 'deletedAt', lable: 'Account Active', format: (value: string) => (!value ? 'Yes' : 'No') },
+  { key: 'companiesCount', label: 'Companies Count' },
+  { key: 'deletedAt', label: 'Account Active', format: (value: string) => (!value ? 'Yes' : 'No') },
 ]
 
 const Profile = () => {
@@ -116,7 +116,7 @@ const Profile = () => {
               USER_DATA.map((item) => (
                 <div key={item.key}>
                   <InfoItem
-                    label={item.lable}
+                    label={item.label}
                     data={
                       item.format
                         ? item.format(user[item.key as keyof typeof user])

@@ -45,9 +45,7 @@ const updateAccountPassword = async (payload: TChangePassword) => {
 
 const getAllUsers = async (
   params: TPagination & TSorting & { email?: string; username?: string; id?: number },
-) => {
-  return api.get<[TAccount[], number]>(`${BASE_URL}/all-accounts${createQueryString(params)}`)
-}
+) => await api.get<[TAccount[], number]>(`${BASE_URL}/all-accounts${createQueryString(params)}`)
 
 export {
   getAllAccounts,

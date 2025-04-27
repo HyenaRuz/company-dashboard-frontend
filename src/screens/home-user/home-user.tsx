@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
-import { Container, Grid, LinearProgress, Typography } from '@mui/material'
+import { Container, Grid, LinearProgress, Stack, Typography } from '@mui/material'
 import { BarChart } from '@mui/x-charts'
 
 import { getCompanies } from '@/api/companies'
 import { LineChart } from '@/components/charts/line-chart'
 import { TCompany } from '@/types/company.types'
 
-const Home = () => {
+const HomeUser = () => {
   const [data, setData] = useState<TCompany[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -72,7 +72,7 @@ const Home = () => {
     )
   }
 
-  return <Container>{renderContent()}</Container>
+  return <Stack>{renderContent()}</Stack>
 }
 
-export { Home }
+export { HomeUser }

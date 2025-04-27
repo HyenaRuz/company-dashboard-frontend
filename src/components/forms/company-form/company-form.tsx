@@ -170,7 +170,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
   const selectingSubmit = type === 'create' ? createSubmit : updateSubmit
 
   return (
-    <form style={{ width: '100%' }}>
+    <form style={{ width: '100%' }} onSubmit={handleSubmit(selectingSubmit)}>
       <Stack spacing={2} alignItems="center">
         <Box
           component="img"
@@ -258,6 +258,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
           />
 
           <Button
+            type="button"
             variant="outlined"
             color={company?.deletedAt ? 'success' : 'error'}
             onClick={company?.deletedAt ? recoverSubmit : deleteSubmit}
@@ -265,11 +266,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
             {company?.deletedAt ? 'Restore Company' : 'Delete Company'}
           </Button>
 
-          <Button
-            type="button"
-            variant="contained"
-            onClick={handleSubmit(type === 'create' ? createSubmit : updateSubmit)}
-          >
+          <Button type="submit" variant="contained">
             {type === 'create' ? 'Create' : 'Update'}
           </Button>
         </Stack>

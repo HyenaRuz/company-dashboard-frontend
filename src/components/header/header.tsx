@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import AddModeratorIcon from '@mui/icons-material/AddModerator'
@@ -35,10 +36,12 @@ const Header = () => {
   const location = useLocation()
   const user = useUserFromCache()
 
-  const links = HEADER_LINKS.filter((item) => {
-    if (!item.role) return true
-    return item.role.includes(user?.role || ERole.USER)
-  })
+  const links = useMemo(() => {
+    return HEADER_LINKS.filter((item) => {
+      if (!item.role) return true
+      return item.role.includes(user?.role || ERole.USER)
+    })
+  }, [user?.role])
 
   return (
     <AppBar position="static" sx={{ padding: 2 }}>

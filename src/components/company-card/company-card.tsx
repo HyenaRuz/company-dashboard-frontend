@@ -145,7 +145,7 @@ const CompanyCard = ({
             sx={{ gap: 2, backgroundColor: 'var(--color-red)' }}
             onClick={handleDeleteCompany}
           >
-            Delite
+            Delete
           </Button>
         </Stack>
       </Popover>
