@@ -10,9 +10,11 @@ import { Signup } from '@/screens/auth/signup'
 import { Companies } from '@/screens/companies'
 import { CompaniesDashboard } from '@/screens/companies-dashboard'
 import { Company } from '@/screens/company'
+import { ForgotPasswordPage } from '@/screens/forgot-password-page'
 import { Home } from '@/screens/home'
 import { HomeAdmin } from '@/screens/home-admin'
 import { Profile } from '@/screens/profile'
+import { ResetPasswordPage } from '@/screens/reset-password-page'
 import { Users } from '@/screens/users'
 
 import { UserLayout } from '../user-layout/user-layout'
@@ -25,6 +27,9 @@ const Layout = () => {
     <Routes>
       <Route path={EAppRoutes.LOGIN} element={<Login />} />
       <Route path={EAppRoutes.SIGNUP} element={<Signup />} />
+      <Route path={EAppRoutes.FORGOT_PASSWORD_PAGE} element={<ForgotPasswordPage />} />
+      <Route path={EAppRoutes.RESET_PASSWORD_PAGE} element={<ResetPasswordPage />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
 
       <Route
         path="/"
@@ -71,8 +76,6 @@ const Layout = () => {
           }
         />
       </Route>
-
-      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   )
 }

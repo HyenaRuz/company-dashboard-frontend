@@ -85,6 +85,13 @@ const AuthForm = () => {
         </Button>
         <Typography>{"Don't have an account?"}</Typography>
         <Button onClick={() => navigate(`/${EAppRoutes.SIGNUP}`)}>Sign up</Button>
+
+        <Stack flexDirection={'row'}>
+          <Typography>{'Forgot your password?'}</Typography>
+          <Button onClick={() => navigate(`/${EAppRoutes.FORGOT_PASSWORD_PAGE}`)}>
+            Reset password
+          </Button>
+        </Stack>
       </Stack>
     </form>
   )

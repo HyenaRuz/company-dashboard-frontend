@@ -34,7 +34,7 @@ const refreshTokens = async () => {
   }
 
   return api.get<{ accessToken: string }>(
-    `${import.meta.env.VITE_API_BASE_URL}${BASE_URL}/refresh`,
+    `${import.meta.env.VITE_API_BASE_URL}${BASE_URL}/check-email`,
     {
       headers: {
         Authorization: `Bearer ${tokens.refreshToken}`,
@@ -43,4 +43,12 @@ const refreshTokens = async () => {
   )
 }
 
-export { signup, login, refreshTokens }
+const checkEmail = async (email: string) => await api.post(`${BASE_URL}/check-email`, { email })
+
+const requestPasswordReset = async (email: string) =>
+  await api.post(`${BASE_URL}/reset-password-request`, { email })
+
+const resetPassword = async (token: string, newPassword: string, confirmPassword: string) =>
+  await api.post(`${BASE_URL}/reset-password`, { token, newPassword, confirmPassword })
+
+export { signup, login, refreshTokens, checkEmail, requestPasswordReset, resetPassword }
