@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
+import { LinearProgress } from '@mui/material'
+
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
 import { RouteProtection } from '@/helpers/route-protection'
@@ -19,7 +21,11 @@ import { UserLayout } from '../user-layout/user-layout'
 
 const Layout = () => {
   const cachedUser = useUserFromCache()
-  const { data: user } = useUser({ enabled: !cachedUser })
+  const { data: user, isLoading } = useUser({ enabled: !cachedUser })
+
+  if (isLoading) {
+    return <LinearProgress />
+  }
 
   return (
     <Routes>
@@ -29,7 +35,7 @@ const Layout = () => {
       <Route
         path="/"
         element={
-          <RouteProtection>
+          <RouteProtection user={user} isLoading={isLoading}>
             <UserLayout />
           </RouteProtection>
         }
@@ -49,7 +55,11 @@ const Layout = () => {
         <Route
           path={EAppRoutes.USERS}
           element={
-            <RouteProtection requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}>
+            <RouteProtection
+              user={user}
+              isLoading={isLoading}
+              requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}
+            >
               <Users />
             </RouteProtection>
           }
@@ -57,7 +67,11 @@ const Layout = () => {
         <Route
           path={`${EAppRoutes.USERS}/:id`}
           element={
-            <RouteProtection requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}>
+            <RouteProtection
+              user={user}
+              isLoading={isLoading}
+              requiredRoles={[ERole.ADMIN, ERole.SUPERADMIN]}
+            >
               <Profile />
             </RouteProtection>
           }
@@ -65,7 +79,7 @@ const Layout = () => {
         <Route
           path={EAppRoutes.ADMINS}
           element={
-            <RouteProtection requiredRoles={[ERole.SUPERADMIN]}>
+            <RouteProtection user={user} isLoading={isLoading} requiredRoles={[ERole.SUPERADMIN]}>
               <Admins />
             </RouteProtection>
           }
