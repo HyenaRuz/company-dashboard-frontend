@@ -20,7 +20,7 @@ const useSignup = () => {
       setTokenToLocalStorage(data.tokens)
 
       toast('You have registered successfully.', { type: 'success' })
-      navigate(EAppRoutes.HOME, { replace: true })
+      navigate(`${EAppRoutes.HOME}`, { replace: true })
 
       await queryClient.prefetchQuery({
         queryKey: [EQueryKeys.ME],

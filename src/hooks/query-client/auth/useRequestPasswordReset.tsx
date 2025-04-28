@@ -14,7 +14,7 @@ const useRequestPasswordReset = () => {
     mutationFn: async ({ email }) => await requestPasswordReset(email),
     onSuccess: async (data) => {
       toast('Reset link sent to your email.', { type: 'success' })
-      navigate(EAppRoutes.LOGIN, { replace: true })
+      navigate(`/${EAppRoutes.LOGIN}`, { replace: true })
 
       console.log(data.previewUrl)
 

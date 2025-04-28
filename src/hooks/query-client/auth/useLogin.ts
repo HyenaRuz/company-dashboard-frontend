@@ -20,7 +20,7 @@ const useLogin = () => {
       setTokenToLocalStorage(data.tokens)
 
       toast('You have successfully logged in.', { type: 'success' })
-      navigate(EAppRoutes.HOME)
+      navigate(`/${EAppRoutes.HOME}`)
 
       await queryClient.prefetchQuery({
         queryKey: [EQueryKeys.ME],

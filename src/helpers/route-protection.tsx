@@ -28,26 +28,22 @@ const RouteProtection = ({
 
   if (!tokens?.accessToken) {
     logout()
-    return <Navigate to="/login" replace />
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />
+    navigate(`/${EAppRoutes.LOGIN}`, { replace: true })
   }
 
   if (isLoading) {
     return <LinearProgress />
   }
 
-  useEffect(() => {
-    if (!isLoading && (!user || (requiredRoles.length && !requiredRoles.includes(user.role)))) {
-      if (user?.role === ERole.USER) {
-        navigate(EAppRoutes.HOME, { replace: true })
-      } else {
-        navigate(`${EAppRoutes.ADMIN}/${EAppRoutes.HOME}`, { replace: true })
-      }
-    }
-  }, [isLoading, user, requiredRoles, navigate])
+  if (!user) {
+    navigate(`/${EAppRoutes.LOGIN}`, { replace: true })
+  }
+
+  if (!user || (requiredRoles.length && !requiredRoles.includes(user.role))) {
+    navigate(`/${EAppRoutes.HOME}`, { replace: true })
+    return <></>
+  }
+
   return children
 }
 export { RouteProtection }

@@ -1,15 +1,20 @@
 import { Controller, useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Grid, Stack, TextField } from '@mui/material'
+import { Grid, Stack } from '@mui/material'
 import * as yup from 'yup'
 
 import { Button } from '@/components/ui/button'
+import { TextField } from '@/components/ui/text-field'
 import { useRequestPasswordReset } from '@/hooks/query-client'
 import { emailSchema } from '@/validation/user.validation'
 
 const ForgotPasswordPage = () => {
-  const { control, handleSubmit } = useForm<{ email: string }>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<{ email: string }>({
     defaultValues: { email: '' },
     resolver: yupResolver(yup.object({ email: emailSchema })),
   })
@@ -33,7 +38,17 @@ const ForgotPasswordPage = () => {
           <Controller
             name="email"
             control={control}
-            render={({ field }) => <TextField {...field} label="Email" fullWidth />}
+            defaultValue=""
+            render={({ field }) => (
+              <TextField
+                label="Email"
+                variant="outlined"
+                fullWidth
+                {...field}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              />
+            )}
           />
           <Button type="submit" variant="contained">
             Send Reset Link

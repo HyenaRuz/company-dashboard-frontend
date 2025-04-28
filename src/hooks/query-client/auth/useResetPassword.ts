@@ -14,7 +14,7 @@ const useResetPassword = () => {
       await resetPassword(token, newPassword, confirmPassword),
     onSuccess: () => {
       toast('Password reset successfully.', { type: 'success' })
-      navigate(EAppRoutes.LOGIN, { replace: true })
+      navigate(`/${EAppRoutes.LOGIN}`, { replace: true })
     },
 
     onError: (error: any) => {

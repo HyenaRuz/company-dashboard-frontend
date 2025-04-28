@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Stack, Typography } from '@mui/material'
+import { Link, Stack, Typography } from '@mui/material'
 import * as yup from 'yup'
 
 import { Button } from '@/components/ui/button'
@@ -78,11 +78,16 @@ const AuthForm = () => {
         <Typography>{"Don't have an account?"}</Typography>
         <Button onClick={() => navigate(`/${EAppRoutes.SIGNUP}`)}>Sign up</Button>
 
-        <Stack flexDirection={'row'}>
+        <Stack flexDirection={'row'} gap={1}>
           <Typography>{'Forgot your password?'}</Typography>
-          <Button onClick={() => navigate(`/${EAppRoutes.FORGOT_PASSWORD_PAGE}`)}>
+          <Link
+            component="button"
+            variant="body2"
+            color="primary"
+            onClick={() => navigate(`/${EAppRoutes.FORGOT_PASSWORD_PAGE}`)}
+          >
             Reset password
-          </Button>
+          </Link>
         </Stack>
       </Stack>
     </form>
