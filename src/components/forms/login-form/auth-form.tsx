@@ -1,6 +1,5 @@
 import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Stack, Typography } from '@mui/material'
@@ -10,10 +9,11 @@ import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { useLogin } from '@/hooks/query-client'
+import { emailSchema, passwordSchema } from '@/validation/user.validation'
 
 const validationSchema = yup.object({
-  login: yup.string().required('Login is required'),
-  password: yup.string().required('Password is required'),
+  login: emailSchema,
+  password: passwordSchema,
 })
 
 const AuthForm = () => {
@@ -33,15 +33,7 @@ const AuthForm = () => {
   })
 
   const submit = async (payload: { login: string; password: string }) => {
-    loginMutation.mutate(payload, {
-      onSuccess: () => {
-        toast('You have successfully logged in.', { type: 'success' })
-        navigate(EAppRoutes.HOME)
-      },
-      onError: (error: any) => {
-        toast(`Error: ${error?.message}`, { type: 'error' })
-      },
-    })
+    loginMutation.mutate(payload)
   }
 
   return (

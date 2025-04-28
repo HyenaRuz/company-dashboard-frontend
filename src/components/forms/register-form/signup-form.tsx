@@ -12,18 +12,13 @@ import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { useSignup } from '@/hooks/query-client'
+import { emailSchema, passwordSchema, usernameSchema } from '@/validation/user.validation'
 
 const validationSchema = yup.object({
-  username: yup.string().required('Username is required'),
-  email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup
-    .string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-  repeatPassword: yup
-    .string()
-    .oneOf([yup.ref('password')], 'Passwords must match')
-    .required('Repeat your password'),
+  username: usernameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+  repeatPassword: passwordSchema.oneOf([yup.ref('password')], 'Passwords must match'),
 })
 
 type TForm = {
@@ -38,6 +33,7 @@ const SignupForm = () => {
 
   const signupMutation = useSignup()
   const navigate = useNavigate()
+
   const fileRef = useRef<HTMLInputElement>(null)
 
   const {
@@ -74,15 +70,7 @@ const SignupForm = () => {
 
     if (file) formData.append('avatar', file)
 
-    signupMutation.mutate(formData, {
-      onSuccess: () => {
-        toast('You have registered successfully.', { type: 'success' })
-        navigate(EAppRoutes.DASHBOARD)
-      },
-      onError: (err: any) => {
-        toast(`Error: ${err.message}`, { type: 'error' })
-      },
-    })
+    signupMutation.mutate(formData)
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

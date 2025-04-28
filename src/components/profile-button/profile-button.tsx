@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import cn from 'classnames'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
+import { EQueryKeys } from '@/enums/query-keys.enum'
 import { logout } from '@/helpers/logout'
 import { useUserFromCache } from '@/hooks/query-client'
 
@@ -27,7 +28,7 @@ const ProfileButton = () => {
 
   const logoutHandler = () => {
     logout()
-    queryClient.invalidateQueries({ queryKey: ['me'] })
+    queryClient.invalidateQueries({ queryKey: [EQueryKeys.ME] })
     navigate(EAppRoutes.LOGIN)
   }
 

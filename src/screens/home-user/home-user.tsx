@@ -1,45 +1,26 @@
-import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
-import { Container, Grid, LinearProgress, Stack, Typography } from '@mui/material'
+import { Grid, LinearProgress, Stack, Typography } from '@mui/material'
 import { BarChart } from '@mui/x-charts'
 
-import { getCompanies } from '@/api/companies'
 import { LineChart } from '@/components/charts/line-chart'
-import { TCompany } from '@/types/company.types'
+import { useCompanies } from '@/hooks/query-client'
 
 const HomeUser = () => {
-  const [data, setData] = useState<TCompany[]>([])
-  const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const { data, error, isLoading } = useCompanies({
+    allCompanies: true,
+    sortDirection: 'asc',
+    sortField: 'createdAt',
+  })
 
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-
-      const { data } = await getCompanies({
-        allCompanies: true,
-        sortDirection: 'asc',
-        sortField: 'createdAt',
-      })
-
-      const [companies, total] = data
-
-      setTotal(total)
-      setData(companies)
-    } catch (error) {
-      toast(`Error loading companies: ${(error as any).message}`, { type: 'error' })
-    } finally {
-      setLoading(false)
-    }
+  if (error) {
+    toast(`Error loading companies: ${(error as any).message}`, { type: 'error' })
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  const [companies = [], total = 0] = data ?? []
 
   const renderContent = () => {
-    if (loading) {
+    if (isLoading) {
       return <LinearProgress />
     }
 
@@ -53,11 +34,11 @@ const HomeUser = () => {
           xAxis={[
             {
               scaleType: 'band',
-              data: data.map((item) => `(${item.id}) - ${item.name}`),
+              data: companies.map((item) => `(${item.id}) - ${item.name}`),
               label: '(ID) Companies',
             },
           ]}
-          series={[{ data: [...data.map((item) => item.capital)] }]}
+          series={[{ data: [...companies.map((item) => item.capital)] }]}
           height={300}
           yAxis={[
             {
@@ -66,8 +47,8 @@ const HomeUser = () => {
             },
           ]}
         />
-        <LineChart data={data} />
-        <LineChart data={data} param="updatedAt" />
+        <LineChart data={companies} />
+        <LineChart data={companies} param="updatedAt" />
       </Grid>
     )
   }

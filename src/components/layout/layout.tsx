@@ -5,7 +5,7 @@ import { LinearProgress } from '@mui/material'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
 import { RouteProtection } from '@/helpers/route-protection'
-import { useUser, useUserFromCache } from '@/hooks/query-client'
+import { useMyAccount, useUserFromCache } from '@/hooks/query-client'
 import { Admins } from '@/screens/admins'
 import { Login } from '@/screens/auth/login'
 import { Signup } from '@/screens/auth/signup'
@@ -21,7 +21,7 @@ import { UserLayout } from '../user-layout/user-layout'
 
 const Layout = () => {
   const cachedUser = useUserFromCache()
-  const { data: user, isLoading } = useUser({ enabled: !cachedUser })
+  const { data: user, isLoading } = useMyAccount({ enabled: !cachedUser })
 
   if (isLoading) {
     return <LinearProgress />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
@@ -10,18 +10,15 @@ import {
   GridSortModel,
 } from '@mui/x-data-grid'
 
-import { getAllUsers } from '@/api/account'
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
 import userColums from '@/components/data-grid/lib/constants/user-colums'
 import { TAccount } from '@/types/account.types'
 import { TSorting } from '@/types/api.types'
+import { useUsers } from '@/hooks/query-client'
 
 const Users = () => {
-  const [users, setUsers] = useState<TAccount[]>([])
-  const [total, setTotal] = useState(0)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
-  //   const [loading, setLoading] = useState(true)
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 17,
@@ -51,43 +48,20 @@ const Users = () => {
       {} as Record<string, string>,
     )
 
-  const fetchUsers = async () => {
-    try {
-      //   setLoading(true)
+  const sortParams = getSortParams(sortModel)
 
-      const sortParams = getSortParams(sortModel)
+  const { data, error } = useUsers({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+    ...sortParams,
+    ...filters,
+  })
 
-      const filters = filterModel.items
-        .filter((item) => !!item.value)
-        .reduce(
-          (acc, item) => {
-            acc[item.field] = item.value
-            return acc
-          },
-          {} as Record<string, string>,
-        )
-
-      const { data } = await getAllUsers({
-        ...sortParams,
-        page: paginationModel.page + 1,
-        limit: paginationModel.pageSize,
-        ...filters,
-      })
-
-      const [users, total] = data
-
-      setUsers(users)
-      setTotal(total)
-    } catch (error) {
-      toast(`Error loading users: ${(error as any).message}`, { type: 'error' })
-    } finally {
-      //   setLoading(false)
-    }
+  if (error) {
+    toast(`Error loading users: ${(error as any).message}`, { type: 'error' })
   }
 
-  useEffect(() => {
-    fetchUsers()
-  }, [paginationModel, filterModel, sortModel])
+  const [users = [], total = 0] = data ?? []
 
   const handleRowClick = (params: GridRowParams<TAccount>) => {
     const row = params.row

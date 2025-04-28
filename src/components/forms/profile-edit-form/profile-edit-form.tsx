@@ -1,22 +1,26 @@
-import { useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Avatar, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material'
-import { useQueryClient } from '@tanstack/react-query'
 import * as yup from 'yup'
 
-import { deleteAccount, recoverAccount, updateAccount, updateAccountAdmin } from '@/api/account'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
 import { ERole } from '@/enums/role.enum'
-import { useUserFromCache } from '@/hooks/query-client'
+import {
+  useDeleteAccount,
+  useRecoverAccount,
+  useUpdateAccount,
+  useUpdateAccountAdmin,
+  useUserFromCache,
+} from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
+import { emailSchema, usernameSchema } from '@/validation/user.validation'
 
 const validationSchema = yup.object({
-  username: yup.string().required('Username is required'),
-  email: yup.string().email('Invalid email').required('Email is required'),
+  username: usernameSchema,
+  email: emailSchema,
   role: yup.string().required('Role is required'),
 })
 
@@ -34,7 +38,6 @@ const ProfileEditForm = ({
   setFormModalOpen,
   userData,
   adminForm,
-  refreshData,
 }: {
   setFormModalOpen: () => void
   userData: TAccount
@@ -44,8 +47,12 @@ const ProfileEditForm = ({
   const [preview, setPreview] = useState<string | null>(null)
   const user = useUserFromCache()
 
-  const queryClient = useQueryClient()
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const useUpdateAccountMutation = useUpdateAccount()
+  const updateAccountAdminMutation = useUpdateAccountAdmin()
+  const deleteAccountMutation = useDeleteAccount(setFormModalOpen)
+  const recoverAccountMutation = useRecoverAccount(setFormModalOpen)
 
   const {
     control,
@@ -61,79 +68,37 @@ const ProfileEditForm = ({
     resolver: yupResolver(validationSchema),
   })
 
+  const createFormData = (payload: TForm, fileRef: RefObject<HTMLInputElement>): FormData => {
+    const formData = new FormData()
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value))
+      }
+    })
+
+    const file = fileRef.current?.files?.[0]
+    if (file) formData.append('avatar', file)
+
+    return formData
+  }
+
   const submitUser = async (payload: TForm) => {
-    try {
-      const file = fileRef.current?.files?.[0]
-
-      const formData = new FormData()
-
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value))
-        }
-      })
-
-      if (file) formData.append('avatar', file)
-
-      await updateAccount(formData)
-
-      await queryClient.invalidateQueries({ queryKey: ['me'] })
-      setFormModalOpen()
-      toast('Account updated successfully.', { type: 'success' })
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
-    }
+    const formData = createFormData(payload, fileRef)
+    useUpdateAccountMutation.mutate(formData)
   }
 
   const submitAdmin = async (payload: TForm) => {
-    try {
-      const file = fileRef.current?.files?.[0]
-
-      const formData = new FormData()
-
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value))
-        }
-      })
-
-      if (file) formData.append('avatar', file)
-
-      await updateAccountAdmin(userData.id, formData)
-
-      refreshData && refreshData()
-
-      setFormModalOpen()
-
-      toast('Account updated successfully.', { type: 'success' })
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
-    }
+    const formData = createFormData(payload, fileRef)
+    updateAccountAdminMutation.mutate({ payload: formData, id: userData.id })
   }
 
-  const submitDelete = async () => {
-    try {
-      await deleteAccount(userData!.id)
-
-      refreshData && refreshData()
-
-      setFormModalOpen()
-      toast('Account deleted successfully.', { type: 'success' })
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
-    }
+  const submitDelete = () => {
+    deleteAccountMutation.mutate({ id: userData.id })
   }
+
   const submitRecover = async () => {
-    try {
-      await recoverAccount(userData!.id)
-
-      refreshData && refreshData()
-
-      setFormModalOpen()
-      toast('Account deleted successfully.', { type: 'success' })
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
-    }
+    recoverAccountMutation.mutate({ id: userData.id })
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
