@@ -1,32 +1,34 @@
 import * as yup from 'yup'
 
-const usernameSchema = (t: any) =>
-  yup
-    .string()
-    .required(t('validation.user.username_required'))
-    .min(3, t('validation.user.username_min', { length: 3 }))
-    .max(30, t('validation.user.username_max', { length: 30 }))
-    .test('username', t('validation.user.username_characters'), (value) =>
-      new RegExp(/^[a-zA-Z0-9._@-]+$/).test(value),
-    )
-    .trim()
+const USERNAME_REGEX = /^[a-zA-Z0-9._@-]+$/
+const PASSWORD_REGEX = /^[a-zA-Z0-9._@-]+$/
 
-const emailSchema = (t: any) =>
-  yup
-    .string()
-    .required(t('validation.user.email_required'))
-    .email(t('validation.user.email_invalid'))
-    .trim()
+const usernameSchema = yup
+  .string()
+  .required('Username is required.')
+  .min(3, 'Username must be at least 3 characters.')
+  .max(30, 'Username must be at most 30 characters.')
+  .matches(
+    USERNAME_REGEX,
+    'Username can only contain letters, numbers, dots, underscores, @ and hyphens.',
+  )
+  .trim()
 
-const passwordSchema = (t: any) =>
-  yup
-    .string()
-    .required(t('validation.user.password_required'))
-    .min(8, t('validation.user.password_min', { length: 8 }))
-    .max(30, t('validation.user.password_max', { length: 30 }))
-    .test('password', t('validation.user.password_characters'), (value) =>
-      new RegExp(/^[a-zA-Z0-9._@-]+$/).test(value),
-    )
-    .trim()
+const emailSchema = yup
+  .string()
+  .required('Email is required.')
+  .email('Email must be a valid email address.')
+  .trim()
+
+const passwordSchema = yup
+  .string()
+  .required('Password is required.')
+  .min(8, 'Password must be at least 8 characters.')
+  .max(30, 'Password must be at most 30 characters.')
+  .matches(
+    PASSWORD_REGEX,
+    'Password can only contain letters, numbers, dots, underscores, @ and hyphens.',
+  )
+  .trim()
 
 export { usernameSchema, emailSchema, passwordSchema }

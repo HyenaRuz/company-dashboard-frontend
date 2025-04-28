@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom'
 import { Avatar, IconButton, LinearProgress, Stack, Typography } from '@mui/material'
 import moment from 'moment'
 
-import { getAccount } from '@/api/account'
 import { ChangePassword } from '@/components/forms/change-password'
 import { ProfileEditForm } from '@/components/forms/profile-edit-form'
 import { HistoryGrid } from '@/components/history-grid'
@@ -13,57 +12,65 @@ import { Button } from '@/components/ui/button'
 import { InfoItem } from '@/components/ui/info-item'
 import { Modal } from '@/components/ui/modal'
 import { ERole } from '@/enums/role.enum'
-import { useUser } from '@/hooks/query-client'
+import { useMyAccount, useUser } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 
 export type TDataConfig = {
   key: keyof TAccount
-  lable: string
+  label: string
   format?: any
 }
 
 const USER_DATA: TDataConfig[] = [
-  { key: 'email', lable: 'Email' },
-  { key: 'id', lable: 'ID' },
-  { key: 'role', lable: 'Role' },
+  { key: 'email', label: 'Email' },
+  { key: 'id', label: 'ID' },
+  { key: 'role', label: 'Role' },
   {
     key: 'createdAt',
-    lable: 'Created At',
+    label: 'Created At',
     format: (value: string) => moment(value).format('DD.MM.YYYY HH:mm'),
   },
-  { key: 'companiesCount', lable: 'Companies Count' },
-  { key: 'deletedAt', lable: 'Account Active', format: (value: string) => (!value ? 'Yes' : 'No') },
+  { key: 'companiesCount', label: 'Companies Count' },
+  { key: 'deletedAt', label: 'Account Active', format: (value: string) => (!value ? 'Yes' : 'No') },
 ]
 
 const Profile = () => {
-  const [formModalOpen, setFormModalOpen] = useState(false)
-  const [user, setUser] = useState<TAccount | null>(null)
-  const [activeForm, setActiveForm] = useState<'edit' | 'password' | null>(null)
+  const [editFormModalOpen, setEditFormModalOpen] = useState(false)
+  const [passwordFormModalOpen, setPasswordFormModalOpen] = useState(false)
+  const [user, setUser] = useState<TAccount>()
   const [isLoading, setIsLoading] = useState(true)
 
   const { id } = useParams<{ id: string }>()
-  const { data: userData, isLoading: isUserLoading } = useUser()
 
-  const fetchAccount = async (id: number) => {
-    try {
-      setIsLoading(true)
-      const data = await getAccount(id)
-      setUser(data)
-    } catch (error) {
-      console.error('Error fetching account', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const {
+    data: userData,
+    isLoading: isUserLoading,
+    refetch: refetchUserData,
+  } = useUser({ id: id ? +id : 0 })
+
+  const {
+    data: myAccountData,
+    isLoading: isMyAccountLoading,
+    refetch: refetchMyAccountData,
+  } = useMyAccount()
 
   useEffect(() => {
     if (id) {
-      fetchAccount(+id)
-    } else if (userData) {
       setUser(userData)
       setIsLoading(isUserLoading)
+    } else {
+      setUser(myAccountData)
+      setIsLoading(isMyAccountLoading)
     }
-  }, [id, userData, isUserLoading])
+  }, [id, userData, myAccountData, isUserLoading, isMyAccountLoading])
+
+  const handleRefetch = () => {
+    if (id) {
+      refetchUserData()
+    } else {
+      refetchMyAccountData()
+    }
+  }
 
   if (!user) {
     return <NoDataLabel />
@@ -78,8 +85,7 @@ const Profile = () => {
       <>
         <IconButton
           onClick={() => {
-            setActiveForm('edit')
-            setFormModalOpen(true)
+            setEditFormModalOpen(true)
           }}
         >
           <Avatar src={user?.avatarUrl} sx={{ width: 240, height: 240 }} />
@@ -93,8 +99,7 @@ const Profile = () => {
               <Button
                 variant="contained"
                 onClick={() => {
-                  setActiveForm('edit')
-                  setFormModalOpen(true)
+                  setEditFormModalOpen(true)
                 }}
               >
                 Edit Account
@@ -102,8 +107,7 @@ const Profile = () => {
 
               <Button
                 onClick={() => {
-                  setActiveForm('password')
-                  setFormModalOpen(true)
+                  setPasswordFormModalOpen(true)
                 }}
               >
                 Change password
@@ -116,7 +120,7 @@ const Profile = () => {
               USER_DATA.map((item) => (
                 <div key={item.key}>
                   <InfoItem
-                    label={item.lable}
+                    label={item.label}
                     data={
                       item.format
                         ? item.format(user[item.key as keyof typeof user])
@@ -132,49 +136,56 @@ const Profile = () => {
   }
 
   return (
-    <Stack gap={4}>
-      <Stack
-        flexDirection={{ xs: 'column', sm: 'row', md: 'row' }}
-        justifyContent="space-between"
-        gap={4}
-      >
-        {renderContent()}
+    <>
+      <Stack gap={4}>
+        <Stack
+          flexDirection={{ xs: 'column', sm: 'row', md: 'row' }}
+          justifyContent="space-between"
+          gap={4}
+        >
+          {renderContent()}
+        </Stack>
+
+        {user?.role !== ERole.USER && user?.targetHistories && (
+          <HistoryGrid data={user?.targetHistories} />
+        )}
       </Stack>
 
-      {userData?.role !== ERole.USER && user?.targetHistories && (
-        <HistoryGrid data={user?.targetHistories} />
-      )}
-
       {user && (
-        <Modal
-          open={formModalOpen}
-          onClose={() => {
-            setFormModalOpen(false)
-            setActiveForm(null)
-          }}
-          title="Edit profile"
-        >
-          {activeForm === 'edit' ? (
+        <>
+          <Modal
+            open={editFormModalOpen}
+            onClose={() => {
+              setEditFormModalOpen(false)
+            }}
+            title="Edit profile"
+          >
             <ProfileEditForm
               userData={user}
               setFormModalOpen={() => {
-                setFormModalOpen(false)
-                setActiveForm(null)
+                setEditFormModalOpen(false)
               }}
               adminForm={!!id}
-              refreshData={() => fetchAccount(user.id)}
+              refreshData={handleRefetch}
             />
-          ) : (
+          </Modal>
+
+          <Modal
+            open={passwordFormModalOpen}
+            onClose={() => {
+              setPasswordFormModalOpen(false)
+            }}
+            title="Edit profile"
+          >
             <ChangePassword
               onClose={() => {
-                setFormModalOpen(false)
-                setActiveForm(null)
+                setPasswordFormModalOpen(false)
               }}
             />
-          )}
-        </Modal>
+          </Modal>
+        </>
       )}
-    </Stack>
+    </>
   )
 }
 

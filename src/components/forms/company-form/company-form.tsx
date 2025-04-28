@@ -1,19 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Stack } from '@mui/material'
 import * as yup from 'yup'
 
-import { createCompany, deleteCompany, recoverCompany, updateCompany } from '@/api/companies'
 import placeholder from '@/assets/placeholder.png'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
-import { EAppRoutes } from '@/enums/app-routes.enum'
-import { ERole } from '@/enums/role.enum'
-import { useUserFromCache } from '@/hooks/query-client'
+import {
+  useCreateCompany,
+  useDeleteCompany,
+  useRecoverCompany,
+  useUpdateCompany,
+} from '@/hooks/query-client'
 import { TCompany } from '@/types/company.types'
 
 const validationSchema = yup.object({
@@ -35,16 +35,12 @@ type TFormUpdate = TForm & {
 
 type TProps = {
   onClose: () => void
-  reloadData: () => void
-  company?: TCompany | null
+  company?: TCompany
   type?: 'create' | 'update'
 }
 
-const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) => {
+const CompanyForm = ({ onClose, company, type = 'create' }: TProps) => {
   const [preview, setPreview] = useState<string | null>(null)
-
-  const user = useUserFromCache()
-  const navigate = useNavigate()
 
   const fileRef = useRef<HTMLInputElement>(null)
   const defaultValues = {
@@ -64,89 +60,43 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
     resolver: yupResolver(validationSchema),
   })
 
+  const createFormData = (payload: TForm, fileRef: RefObject<HTMLInputElement>): FormData => {
+    const formData = new FormData()
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value))
+      }
+    })
+
+    const file = fileRef.current?.files?.[0]
+    if (file) formData.append('logo', file)
+
+    return formData
+  }
+
+  const updateCompanyMutation = useUpdateCompany(onClose)
+  const createCompanyMutation = useCreateCompany(onClose)
+  const deleteCompanyMutation = useDeleteCompany(onClose)
+  const recoverCompanyMutation = useRecoverCompany(onClose)
+
   const createSubmit: SubmitHandler<TForm> = async (payload: TForm) => {
-    try {
-      const file = fileRef.current?.files?.[0]
-
-      const formData = new FormData()
-
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value))
-        }
-      })
-
-      if (file) formData.append('logo', file)
-
-      await createCompany(formData)
-
-      onClose()
-      reloadData()
-
-      toast('You have registered successfully.', { type: 'success' })
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
-    }
+    const formData = createFormData(payload, fileRef)
+    createCompanyMutation.mutate(formData)
   }
   const updateSubmit: SubmitHandler<TForm> = async (payload: TForm) => {
-    try {
-      const file = fileRef.current?.files?.[0]
-
-      const formData = new FormData()
-
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value))
-        }
-      })
-
-      if (file) formData.append('logo', file)
-
-      console.log(formData)
-
-      await updateCompany(company?.id!, formData)
-
-      onClose()
-      reloadData()
-
-      toast('You have registered successfully.', { type: 'success' })
-    } catch (err) {
-      toast(`Error: ${(err as any).message}`, { type: 'error' })
-    }
+    const formData = createFormData(payload, fileRef)
+    updateCompanyMutation.mutate({ payload: formData, id: company?.id || 0 })
   }
 
   const deleteSubmit = async () => {
     if (!company) return
-
-    try {
-      await deleteCompany(company?.id)
-
-      onClose()
-      reloadData()
-
-      if (user?.role === ERole.USER) {
-        navigate(`/${EAppRoutes.COMPANIES}`, { replace: true })
-      }
-
-      toast('Company deleted', { type: 'success' })
-    } catch (error) {
-      toast('Error deleting company', { type: 'error' })
-    }
+    deleteCompanyMutation.mutate({ id: company.id })
   }
 
   const recoverSubmit = async () => {
     if (!company) return
-
-    try {
-      await recoverCompany(company?.id)
-
-      onClose()
-      reloadData()
-
-      toast('Company recover', { type: 'success' })
-    } catch (error) {
-      toast('Error deleting company', { type: 'error' })
-    }
+    recoverCompanyMutation.mutate({ id: company.id })
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +120,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
   const selectingSubmit = type === 'create' ? createSubmit : updateSubmit
 
   return (
-    <form style={{ width: '100%' }}>
+    <form style={{ width: '100%' }} onSubmit={handleSubmit(selectingSubmit)}>
       <Stack spacing={2} alignItems="center">
         <Box
           component="img"
@@ -258,6 +208,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
           />
 
           <Button
+            type="button"
             variant="outlined"
             color={company?.deletedAt ? 'success' : 'error'}
             onClick={company?.deletedAt ? recoverSubmit : deleteSubmit}
@@ -265,11 +216,7 @@ const CompanyForm = ({ onClose, reloadData, company, type = 'create' }: TProps) 
             {company?.deletedAt ? 'Restore Company' : 'Delete Company'}
           </Button>
 
-          <Button
-            type="button"
-            variant="contained"
-            onClick={handleSubmit(type === 'create' ? createSubmit : updateSubmit)}
-          >
+          <Button type="submit" variant="contained">
             {type === 'create' ? 'Create' : 'Update'}
           </Button>
         </Stack>

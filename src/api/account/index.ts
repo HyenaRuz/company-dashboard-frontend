@@ -21,22 +21,28 @@ const getAccount = async (id: number) => {
   return data
 }
 
-const updateAccount = async (payload: FormData | TAccount) =>
-  api.put<TAccount>(`${BASE_URL}`, payload, {
+const updateAccount = async (payload: FormData) => {
+  const { data } = await api.put<TAccount>(`${BASE_URL}`, payload, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
+  return data
+}
 
-const updateAccountAdmin = async (id: number, payload: FormData | TAccount) =>
-  api.put<TAccount>(`${BASE_URL}/admin/${id}`, payload, {
+const updateAccountAdmin = async (id: number, payload: FormData) => {
+  const { data } = await api.put<TAccount>(`${BASE_URL}/admin/${id}`, payload, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
+  return data
+}
 
-const deleteAccount = async (id: number) => await api.delete(`${BASE_URL}/${id}`)
-
+const deleteAccount = async (id: number) => {
+  const { data } = await api.delete(`${BASE_URL}/${id}`)
+  return data
+}
 const recoverAccount = async (id: number) => await api.patch(`${BASE_URL}/${id}/recover`)
 
 const updateAccountPassword = async (payload: TChangePassword) => {
@@ -45,9 +51,7 @@ const updateAccountPassword = async (payload: TChangePassword) => {
 
 const getAllUsers = async (
   params: TPagination & TSorting & { email?: string; username?: string; id?: number },
-) => {
-  return api.get<[TAccount[], number]>(`${BASE_URL}/all-accounts${createQueryString(params)}`)
-}
+) => await api.get<[TAccount[], number]>(`${BASE_URL}/all-accounts${createQueryString(params)}`)
 
 export {
   getAllAccounts,

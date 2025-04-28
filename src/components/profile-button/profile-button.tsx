@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { Logout } from '@mui/icons-material'
 import PersonIcon from '@mui/icons-material/Person'
 import { Avatar, Divider, Grid, IconButton, MenuItem, Stack, Typography } from '@mui/material'
+import { useQueryClient } from '@tanstack/react-query'
 import cn from 'classnames'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
-import { useLogout } from '@/helpers/logout'
+import { EQueryKeys } from '@/enums/query-keys.enum'
+import { logout } from '@/helpers/logout'
 import { useUserFromCache } from '@/hooks/query-client'
 
 import { Popover } from '../popover'
@@ -19,9 +21,16 @@ const PROFILE_LINKS = [{ label: 'Profile', path: EAppRoutes.PROFILE, icon: Perso
 const ProfileButton = () => {
   const [userControlsAnchorEl, setUserControlsAnchorEl] = useState<HTMLButtonElement | null>(null)
 
-  const logout = useLogout()
   const user = useUserFromCache()
   const location = useLocation()
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
+  const logoutHandler = () => {
+    logout()
+    queryClient.invalidateQueries({ queryKey: [EQueryKeys.ME] })
+    navigate(EAppRoutes.LOGIN)
+  }
 
   useEffect(() => {
     setUserControlsAnchorEl(null)
@@ -66,7 +75,7 @@ const ProfileButton = () => {
 
           <Divider orientation="horizontal" />
 
-          <Button onClick={logout} variant="contained" sx={{ gap: 2 }}>
+          <Button onClick={logoutHandler} variant="contained" sx={{ gap: 2 }}>
             Logout
             <Logout />
           </Button>

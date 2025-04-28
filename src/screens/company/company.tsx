@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { Avatar, Box, Container, Grid, LinearProgress, Stack, Typography } from '@mui/material'
+import { Avatar, Box, Grid, LinearProgress, Stack, Typography } from '@mui/material'
 import moment from 'moment'
 
-import { getCompany } from '@/api/companies'
 import placeholder from '@/assets/placeholder.png'
 import { CompanyForm } from '@/components/forms/company-form'
 import { HistoryGrid } from '@/components/history-grid'
@@ -14,7 +13,7 @@ import { InfoItem } from '@/components/ui/info-item'
 import { Modal } from '@/components/ui/modal'
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
-import { useUserFromCache } from '@/hooks/query-client'
+import { useCompany, useUserFromCache } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 import { TCompany } from '@/types/company.types'
 
@@ -64,32 +63,25 @@ const USER_DATA: TDataConfig<TAccount>[] = [
 ]
 
 const Company = () => {
-  const [company, setCompany] = useState<TCompany | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [formModalOpen, setFormModalOpen] = useState(false)
 
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const user = useUserFromCache()
 
-  const fetchCompany = async (id: number) => {
-    try {
-      setIsLoading(true)
-      const { data } = await getCompany(id)
-      setCompany(data)
-    } catch (error) {
-      toast(`Error: ${(error as any).message}`, { type: 'error' })
-      navigate(`/${EAppRoutes.COMPANIES}`)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const {
+    data: company,
+    isLoading,
+    error,
+    refetch,
+  } = useCompany({
+    id: +id!,
+  })
 
-  useEffect(() => {
-    if (id) {
-      fetchCompany(+id)
-    }
-  }, [id])
+  if (error) {
+    toast(`Error loading company: ${(error as any).message}`, { type: 'error' })
+    navigate(`/${EAppRoutes.COMPANIES}`)
+  }
 
   const renderContent = () => {
     if (isLoading) {
@@ -172,7 +164,7 @@ const Company = () => {
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
         <CompanyForm
           onClose={() => setFormModalOpen(false)}
-          reloadData={() => fetchCompany(company!.id)}
+          reloadData={refetch}
           company={company}
           type="update"
         />

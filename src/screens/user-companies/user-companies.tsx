@@ -1,22 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { Container, Grid, LinearProgress, Pagination } from '@mui/material'
+import { Grid, LinearProgress, Pagination, Stack } from '@mui/material'
 
-import { getCompanies } from '@/api/companies'
 import { CompanyCard } from '@/components/company-card'
 import { CompanyForm } from '@/components/forms/company-form'
 import { SortingPanel } from '@/components/sorting-panel/sorting-panel'
 import { Modal } from '@/components/ui/modal'
 import { DEFAULT_PAGINATION_TAKE } from '@/constants'
-import { useDebounce } from '@/hooks/useDebounce.hook'
+import { useCompanies } from '@/hooks/query-client'
 import { TCompany } from '@/types/company.types'
 
-const Companies = () => {
-  const [companies, setCompanies] = useState<TCompany[]>([])
-  const [loading, setLoading] = useState(true)
-  const [total, setTotal] = useState(0)
+const UserCompanies = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [formModalOpen, setFormModalOpen] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState<TCompany | null>(null)
@@ -25,59 +21,38 @@ const Companies = () => {
     setFormModalOpen(false)
     setSelectedCompany(null)
   }
-
-  const filters = {
-    name: searchParams.get('name') || '',
-    sortField: searchParams.get('sortField') || 'name',
-    sortDirection: (searchParams.get('sortDirection') as 'asc' | 'desc') || 'asc',
-    page: Number(searchParams.get('page')) || 1,
-    createdAt: searchParams.get('createdAt') || '',
-  }
+  const filters = useMemo(() => {
+    return {
+      name: searchParams.get('name') || '',
+      sortField: searchParams.get('sortField') || 'name',
+      sortDirection: (searchParams.get('sortDirection') as 'asc' | 'desc') || 'asc',
+      page: Number(searchParams.get('page')) || 1,
+      createdAt: searchParams.get('createdAt') || '',
+    }
+  }, [searchParams])
 
   const page = Number(searchParams.get('page')) || 1
 
-  const fetchData = async (pageToUse = page) => {
-    try {
-      setLoading(true)
+  const { data, error, isLoading, refetch } = useCompanies({
+    ...filters,
+    allCompanies: false,
+    page,
+    limit: DEFAULT_PAGINATION_TAKE,
+  })
 
-      const { data } = await getCompanies({
-        ...filters,
-        allCompanies: false,
-        page: pageToUse,
-        limit: DEFAULT_PAGINATION_TAKE,
-      })
-
-      setSelectedCompany(null)
-
-      const [companies, total] = data
-
-      setCompanies(companies)
-      setTotal(total)
-    } catch (err) {
-      toast(`Error loading companies: ${(err as any).message}`, { type: 'error' })
-    } finally {
-      setLoading(false)
-    }
+  if (error) {
+    toast(`Error loading companies: ${(error as any).message}`, { type: 'error' })
   }
 
-  const debouncedFetch = useDebounce({ debounceTimeout: 500, handler: fetchData })
+  const [companies = [], total = 0] = data ?? []
 
-  const handlePageChange = (newPage = 1, withDebounce = false) => {
-    const params = Object.fromEntries(searchParams.entries())
-
-    setSearchParams({
-      ...params,
-      page: newPage.toString(),
-    })
-    ;(withDebounce ? debouncedFetch : fetchData)(newPage)
+  const handlePageChange = (newPage = 1) => {
+    const params = { ...filters, page: newPage.toString() }
+    setSearchParams(params)
   }
-
-  useEffect(() => {
-    fetchData(page)
-  }, [searchParams])
 
   const renderContent = () => {
-    if (loading) {
+    if (isLoading) {
       return <LinearProgress />
     }
 
@@ -94,7 +69,7 @@ const Companies = () => {
             <CompanyCard
               key={company.id}
               company={company}
-              refreshData={fetchData}
+              refreshData={refetch}
               onClick={() => setFormModalOpen(true)}
               setSelectedCompany={setSelectedCompany}
             />
@@ -106,7 +81,7 @@ const Companies = () => {
 
   return (
     <>
-      <Container
+      <Stack
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -131,12 +106,12 @@ const Companies = () => {
           page={page}
           onChange={(_, value) => handlePageChange(value)}
         />
-      </Container>
+      </Stack>
 
       <Modal open={formModalOpen} onClose={closeModal}>
         <CompanyForm
           onClose={closeModal}
-          reloadData={fetchData}
+          reloadData={refetch}
           company={selectedCompany}
           type={selectedCompany ? 'update' : 'create'}
         />
@@ -145,4 +120,4 @@ const Companies = () => {
   )
 }
 
-export { Companies }
+export { UserCompanies }
