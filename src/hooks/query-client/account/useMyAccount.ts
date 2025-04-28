@@ -9,7 +9,7 @@ const useMyAccount = (options?: Partial<UseQueryOptions<TAccount>>) => {
     queryKey: [EQueryKeys.ME],
     queryFn: getMe,
     staleTime: 5 * 60 * 1000,
-    retry: true,
+    retry: false,
     ...options,
   })
 }

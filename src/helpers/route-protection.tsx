@@ -4,7 +4,9 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { LinearProgress } from '@mui/material'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
+import { EQueryKeys } from '@/enums/query-keys.enum'
 import { ERole } from '@/enums/role.enum'
+import { queryClient } from '@/main'
 import { TAccount } from '@/types/account.types'
 
 import { getTokensFromLocalStorage } from './localstorage.helper'
@@ -26,17 +28,23 @@ const RouteProtection = ({
   const tokens = getTokensFromLocalStorage()
   const navigate = useNavigate()
 
-  if (!tokens?.accessToken) {
+  const logoutHandler = () => {
     logout()
+    queryClient.invalidateQueries({ queryKey: [EQueryKeys.ME] })
     navigate(`/${EAppRoutes.LOGIN}`, { replace: true })
   }
+
+  useEffect(() => {
+    if (!tokens?.accessToken) {
+      logoutHandler()
+    }
+  }, [tokens, user, isLoading])
 
   if (isLoading) {
     return <LinearProgress />
   }
-
   if (!user) {
-    navigate(`/${EAppRoutes.LOGIN}`, { replace: true })
+    logoutHandler()
   }
 
   if (!user || (requiredRoles.length && !requiredRoles.includes(user.role))) {

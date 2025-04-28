@@ -51,7 +51,7 @@ const requestPasswordReset = async (email: string) => {
 }
 
 const resetPassword = async (token: string, newPassword: string, confirmPassword: string) => {
-  const { data } = await api.post(`${BASE_URL}/reset-password`, {
+  const { data } = await api.put(`${BASE_URL}/reset-password`, {
     token,
     newPassword,
     confirmPassword,
