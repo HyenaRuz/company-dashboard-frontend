@@ -6,7 +6,7 @@ import { updateCompany } from '@/api/companies'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 import { TCompany } from '@/types/company.types'
 
-export const useUpdateCompany = (onClose?: () => void) => {
+const useUpdateCompany = (onClose?: () => void) => {
   const queryClient = useQueryClient()
 
   return useMutation<TCompany, Error, { payload: FormData; id: number }>({
@@ -22,3 +22,5 @@ export const useUpdateCompany = (onClose?: () => void) => {
     },
   })
 }
+
+export { useUpdateCompany }

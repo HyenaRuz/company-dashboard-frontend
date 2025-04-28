@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { recoverCompany } from '@/api/companies'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 
-export const useRecoverCompany = (onClose?: () => void) => {
+const useRecoverCompany = (onClose?: () => void) => {
   const queryClient = useQueryClient()
 
   return useMutation<void, Error, { id: number }>({
@@ -23,3 +23,5 @@ export const useRecoverCompany = (onClose?: () => void) => {
     },
   })
 }
+
+export { useRecoverCompany }

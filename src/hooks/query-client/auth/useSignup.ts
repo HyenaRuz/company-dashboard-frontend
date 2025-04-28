@@ -10,7 +10,7 @@ import { EQueryKeys } from '@/enums/query-keys.enum'
 import { setTokenToLocalStorage } from '@/helpers/localstorage.helper'
 import { TAuthResponse } from '@/types/auth.types'
 
-export const useSignup = () => {
+const useSignup = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
@@ -20,7 +20,7 @@ export const useSignup = () => {
       setTokenToLocalStorage(data.tokens)
 
       toast('You have registered successfully.', { type: 'success' })
-      navigate(`/${EAppRoutes.HOME}`, { replace: true })
+      navigate(EAppRoutes.HOME, { replace: true })
 
       await queryClient.prefetchQuery({
         queryKey: [EQueryKeys.ME],
@@ -33,3 +33,5 @@ export const useSignup = () => {
     },
   })
 }
+
+export { useSignup }

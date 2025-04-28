@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteAccount } from '@/api/account'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 
-export const useDeleteAccount = (setFormModalOpen?: () => void) => {
+const useDeleteAccount = (setFormModalOpen?: () => void) => {
   const queryClient = useQueryClient()
   return useMutation<void, Error, { id: number }>({
     mutationFn: async ({ id }) => {
@@ -23,3 +23,5 @@ export const useDeleteAccount = (setFormModalOpen?: () => void) => {
     },
   })
 }
+
+export { useDeleteAccount }

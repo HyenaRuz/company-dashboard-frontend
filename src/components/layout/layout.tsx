@@ -1,7 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { LinearProgress } from '@mui/material'
-
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
 import { RouteProtection } from '@/helpers/route-protection'
@@ -24,10 +22,6 @@ import { UserLayout } from '../user-layout/user-layout'
 const Layout = () => {
   const cachedUser = useUserFromCache()
   const { data: user, isLoading } = useMyAccount({ enabled: !cachedUser })
-
-  if (isLoading) {
-    return <LinearProgress />
-  }
 
   return (
     <Routes>

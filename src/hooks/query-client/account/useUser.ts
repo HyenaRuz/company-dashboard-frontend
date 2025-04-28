@@ -9,7 +9,7 @@ type TProps = {
   options?: Partial<UseQueryOptions<TAccount>>
 }
 
-export const useUser = (props: TProps) => {
+const useUser = (props: TProps) => {
   const { options, id } = props
 
   return useQuery<TAccount>({
@@ -23,3 +23,5 @@ export const useUser = (props: TProps) => {
     ...options,
   })
 }
+
+export { useUser }

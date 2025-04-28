@@ -11,7 +11,7 @@ import { TCompany } from '@/types/company.types'
 
 import { useUserFromCache } from '../account/useUserFromCache'
 
-export const useDeleteCompany = (onClose?: () => void) => {
+const useDeleteCompany = (onClose?: () => void) => {
   const queryClient = useQueryClient()
   const user = useUserFromCache()
   const navigate = useNavigate()
@@ -33,3 +33,5 @@ export const useDeleteCompany = (onClose?: () => void) => {
     },
   })
 }
+
+export { useDeleteCompany }

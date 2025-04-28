@@ -1,15 +1,14 @@
-import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Grid, Stack, TextField } from '@mui/material'
-import axios from 'axios'
 import * as yup from 'yup'
 
-import { resetPassword } from '@/api/auth'
 import { Button } from '@/components/ui/button'
+import { useResetPassword } from '@/hooks/query-client'
+import { passwordSchema } from '@/validation/user.validation'
 
 type TFormData = {
   newPassword: string
@@ -17,14 +16,8 @@ type TFormData = {
 }
 
 const validationSchema = yup.object({
-  newPassword: yup
-    .string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('newPassword')], 'Passwords must match')
-    .required('Repeat your password'),
+  newPassword: passwordSchema,
+  confirmPassword: passwordSchema.oneOf([yup.ref('newPassword')], 'Passwords must match'),
 })
 
 const ResetPasswordPage = () => {
@@ -37,9 +30,10 @@ const ResetPasswordPage = () => {
     resolver: yupResolver(validationSchema),
   })
   const [searchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
 
   const token = searchParams.get('token')
+
+  const resetPasswordMutation = useResetPassword()
 
   const onSubmit = async (data: TFormData) => {
     if (!token) {
@@ -47,16 +41,7 @@ const ResetPasswordPage = () => {
       return
     }
 
-    setLoading(true)
-
-    try {
-      await resetPassword(token, data.newPassword, data.confirmPassword)
-      toast.success('Password reset successfully.')
-    } catch (error) {
-      toast.error('Failed to reset password.')
-    } finally {
-      setLoading(false)
-    }
+    resetPasswordMutation.mutate({ token, ...data })
   }
 
   return (
@@ -99,7 +84,7 @@ const ResetPasswordPage = () => {
             )}
           />
 
-          <Button type="submit" variant="contained" disabled={loading}>
+          <Button type="submit" variant="contained">
             Reset Password
           </Button>
         </Stack>

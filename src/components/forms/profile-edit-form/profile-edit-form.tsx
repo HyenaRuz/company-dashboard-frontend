@@ -49,8 +49,8 @@ const ProfileEditForm = ({
 
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const useUpdateAccountMutation = useUpdateAccount()
-  const updateAccountAdminMutation = useUpdateAccountAdmin()
+  const useUpdateAccountMutation = useUpdateAccount(setFormModalOpen)
+  const updateAccountAdminMutation = useUpdateAccountAdmin(setFormModalOpen)
   const deleteAccountMutation = useDeleteAccount(setFormModalOpen)
   const recoverAccountMutation = useRecoverAccount(setFormModalOpen)
 

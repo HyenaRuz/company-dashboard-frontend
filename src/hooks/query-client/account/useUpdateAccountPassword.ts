@@ -1,12 +1,12 @@
+import { ErrorOption } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
 import { useMutation } from '@tanstack/react-query'
 
 import { updateAccountPassword } from '@/api/account'
 import { TChangePassword } from '@/types/account.types'
-import { ErrorOption } from 'react-hook-form'
 
-export const useUpdateAccountPassword = (
+const useUpdateAccountPassword = (
   onClose: () => void,
   setError: (
     name: 'oldPassword' | 'root' | `root.${string}` | 'newPassword' | 'confirmPassword',
@@ -38,3 +38,5 @@ export const useUpdateAccountPassword = (
     },
   })
 }
+
+export { useUpdateAccountPassword }

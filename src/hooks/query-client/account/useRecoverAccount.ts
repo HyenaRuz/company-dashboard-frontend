@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { recoverAccount } from '@/api/account'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 
-export const useRecoverAccount = (setFormModalOpen?: () => void) => {
+const useRecoverAccount = (setFormModalOpen?: () => void) => {
   const queryClient = useQueryClient()
   return useMutation<void, Error, { id: number }>({
     mutationFn: async ({ id }) => {
@@ -22,3 +22,5 @@ export const useRecoverAccount = (setFormModalOpen?: () => void) => {
     },
   })
 }
+
+export { useRecoverAccount }

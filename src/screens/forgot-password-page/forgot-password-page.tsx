@@ -1,31 +1,23 @@
-import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 
+import { yupResolver } from '@hookform/resolvers/yup'
 import { Grid, Stack, TextField } from '@mui/material'
+import * as yup from 'yup'
 
-import { requestPasswordReset } from '@/api/auth'
 import { Button } from '@/components/ui/button'
+import { useRequestPasswordReset } from '@/hooks/query-client'
+import { emailSchema } from '@/validation/user.validation'
 
 const ForgotPasswordPage = () => {
   const { control, handleSubmit } = useForm<{ email: string }>({
     defaultValues: { email: '' },
+    resolver: yupResolver(yup.object({ email: emailSchema })),
   })
 
-  const [loading, setLoading] = useState(false)
+  const requestPasswordResetMutation = useRequestPasswordReset()
 
-  const onSubmit = async (email: { email: string }) => {
-    setLoading(true)
-    try {
-      const { data } = await requestPasswordReset(email.email)
-
-      console.log(data.previewUrl)
-      toast.success('Reset link sent to your email.')
-    } catch (error) {
-      toast.error('Something went wrong.')
-    } finally {
-      setLoading(false)
-    }
+  const onSubmit = async (data: { email: string }) => {
+    requestPasswordResetMutation.mutate({ email: data.email })
   }
 
   return (
@@ -43,7 +35,7 @@ const ForgotPasswordPage = () => {
             control={control}
             render={({ field }) => <TextField {...field} label="Email" fullWidth />}
           />
-          <Button type="submit" variant="contained" disabled={loading}>
+          <Button type="submit" variant="contained">
             Send Reset Link
           </Button>
         </Stack>

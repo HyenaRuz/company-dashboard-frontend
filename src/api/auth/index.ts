@@ -45,10 +45,18 @@ const refreshTokens = async () => {
 
 const checkEmail = async (email: string) => await api.post(`${BASE_URL}/check-email`, { email })
 
-const requestPasswordReset = async (email: string) =>
-  await api.post(`${BASE_URL}/reset-password-request`, { email })
+const requestPasswordReset = async (email: string) => {
+  const { data } = await api.post(`${BASE_URL}/reset-password-request`, { email })
+  return data
+}
 
-const resetPassword = async (token: string, newPassword: string, confirmPassword: string) =>
-  await api.post(`${BASE_URL}/reset-password`, { token, newPassword, confirmPassword })
+const resetPassword = async (token: string, newPassword: string, confirmPassword: string) => {
+  const { data } = await api.post(`${BASE_URL}/reset-password`, {
+    token,
+    newPassword,
+    confirmPassword,
+  })
+  return data
+}
 
 export { signup, login, refreshTokens, checkEmail, requestPasswordReset, resetPassword }

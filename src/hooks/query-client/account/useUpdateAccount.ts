@@ -6,7 +6,7 @@ import { updateAccount } from '@/api/account'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 import { TAccount } from '@/types/account.types'
 
-export const useUpdateAccount = (setFormModalOpen?: () => void) => {
+const useUpdateAccount = (setFormModalOpen?: () => void) => {
   const queryClient = useQueryClient()
 
   return useMutation<TAccount, Error, FormData>({
@@ -22,3 +22,5 @@ export const useUpdateAccount = (setFormModalOpen?: () => void) => {
     },
   })
 }
+
+export { useUpdateAccount }
