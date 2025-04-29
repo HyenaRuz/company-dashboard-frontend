@@ -3,12 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { Box, Stack, Typography } from '@mui/material'
-import {
-  GridFilterModel,
-  GridPaginationModel,
-  GridRowParams,
-  GridSortModel,
-} from '@mui/x-data-grid'
+import { GridPaginationModel, GridRowParams, GridSortModel } from '@mui/x-data-grid'
 
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
 import companyColums from '@/components/data-grid/lib/constants/compahy-colums'
@@ -21,7 +16,7 @@ const CompaniesDashboard = () => {
     page: 0,
     pageSize: 17,
   })
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
+  const [filterModel, setFilterModel] = useState<Record<string, string>>({})
   const [sortModel, setSortModel] = useState<GridSortModel>([])
 
   const navigate = useNavigate()
@@ -38,16 +33,6 @@ const CompaniesDashboard = () => {
     }
   }
 
-  const filters = filterModel.items
-    .filter((item) => !!item.value)
-    .reduce(
-      (acc, item) => {
-        acc[item.field] = item.value
-        return acc
-      },
-      {} as Record<string, string>,
-    )
-
   const handleRowClick = (params: GridRowParams<TCompany>) => {
     const row = params.row
 
@@ -57,7 +42,7 @@ const CompaniesDashboard = () => {
   const { data, error } = useCompanies({
     page: paginationModel.page + 1,
     limit: paginationModel.pageSize,
-    ...filters,
+    ...filterModel,
     ...getSortParams(sortModel),
   })
 
@@ -86,7 +71,17 @@ const CompaniesDashboard = () => {
           rowIdKey="id"
           paginationModel={paginationModel}
           setPaginationModel={setPaginationModel}
-          handleFilterChange={(model) => setFilterModel(model)}
+          handleFilterChange={(model) => {
+            const filters = model.items.reduce(
+              (acc, item) => {
+                acc[item.field] = item.value
+                return acc
+              },
+              {} as Record<string, string>,
+            )
+
+            setFilterModel(filters)
+          }}
           handleSortChange={(model) => setSortModel(model)}
           onRowClick={handleRowClick}
         />

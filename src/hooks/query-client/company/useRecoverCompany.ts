@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { recoverCompany } from '@/api/companies'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 
-const useRecoverCompany = (onClose?: () => void) => {
+const useRecoverCompany = () => {
   const queryClient = useQueryClient()
 
   return useMutation<void, Error, { id: number }>({
@@ -16,7 +16,6 @@ const useRecoverCompany = (onClose?: () => void) => {
       queryClient.invalidateQueries({ queryKey: [EQueryKeys.COMPANIES] })
       queryClient.invalidateQueries({ queryKey: [EQueryKeys.COMPANY] })
       toast('Company recover successfully.', { type: 'success' })
-      onClose && onClose()
     },
     onError: (error: any) => {
       toast(`Error: ${error.message}`, { type: 'error' })

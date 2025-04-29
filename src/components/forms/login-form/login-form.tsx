@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
@@ -16,7 +17,13 @@ const validationSchema = yup.object({
   password: passwordSchema,
 })
 
-const AuthForm = () => {
+type TProps = {
+  onRegister: () => void
+}
+
+const LoginForm = ({ onRegister }: TProps) => {
+  const [isLoading, setIsLoading] = useState(false)
+
   const loginMutation = useLogin()
   const navigate = useNavigate()
 
@@ -29,11 +36,20 @@ const AuthForm = () => {
       login: '',
       password: '',
     },
+    disabled: isLoading,
     resolver: yupResolver(validationSchema as any),
   })
 
   const submit = async (payload: { login: string; password: string }) => {
-    loginMutation.mutate(payload)
+    loginMutation.mutate(payload, {
+      onSuccess: () => {
+        setIsLoading(true)
+        navigate(`/${EAppRoutes.HOME}`)
+      },
+      onError: () => {
+        setIsLoading(false)
+      },
+    })
   }
 
   return (
@@ -72,11 +88,13 @@ const AuthForm = () => {
           )}
         />
 
-        <Button type="submit" variant="contained">
+        <Button type="submit" variant="contained" disabled={isLoading}>
           Login
         </Button>
         <Typography>{"Don't have an account?"}</Typography>
-        <Button onClick={() => navigate(`/${EAppRoutes.SIGNUP}`)}>Sign up</Button>
+        <Button onClick={onRegister} disabled={isLoading}>
+          Sign up
+        </Button>
 
         <Stack flexDirection={'row'} gap={1}>
           <Typography>{'Forgot your password?'}</Typography>
@@ -94,4 +112,4 @@ const AuthForm = () => {
   )
 }
 
-export { AuthForm }
+export { LoginForm }

@@ -6,7 +6,7 @@ import { updateAccount } from '@/api/account'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 import { TAccount } from '@/types/account.types'
 
-const useUpdateAccount = (setFormModalOpen?: () => void) => {
+const useUpdateAccount = () => {
   const queryClient = useQueryClient()
 
   return useMutation<TAccount, Error, FormData>({
@@ -15,7 +15,6 @@ const useUpdateAccount = (setFormModalOpen?: () => void) => {
       toast('Account updated successfully.', { type: 'success' })
       queryClient.invalidateQueries({ queryKey: [EQueryKeys.ME] })
       queryClient.invalidateQueries({ queryKey: [EQueryKeys.USERS] })
-      setFormModalOpen && setFormModalOpen()
     },
     onError: (err: any) => {
       toast(`Error: ${(err as any).message}`, { type: 'error' })

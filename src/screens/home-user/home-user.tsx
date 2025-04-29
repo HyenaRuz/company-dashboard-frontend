@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { toast } from 'react-toastify'
 
 import { Grid, LinearProgress, Stack, Typography } from '@mui/material'
@@ -13,9 +14,11 @@ const HomeUser = () => {
     sortField: 'createdAt',
   })
 
-  if (error) {
-    toast(`Error loading companies: ${(error as any).message}`, { type: 'error' })
-  }
+  useEffect(() => {
+    if (error) {
+      toast(`Error loading companies: ${(error as any).message}`, { type: 'error' })
+    }
+  }, [error])
 
   const [companies = [], total = 0] = data ?? []
 

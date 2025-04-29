@@ -2,11 +2,11 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
 import { ERole } from '@/enums/role.enum'
+import { getTokensFromLocalStorage } from '@/helpers/localstorage.helper'
 import { RouteProtection } from '@/helpers/route-protection'
-import { useMyAccount, useUserFromCache } from '@/hooks/query-client'
+import { useMyAccount } from '@/hooks/query-client'
 import { Admins } from '@/screens/admins'
-import { Login } from '@/screens/auth/login'
-import { Signup } from '@/screens/auth/signup'
+import { AuthPage } from '@/screens/auth-page'
 import { CompaniesDashboard } from '@/screens/companies-dashboard'
 import { Company } from '@/screens/company'
 import { ForgotPasswordPage } from '@/screens/forgot-password-page'
@@ -19,23 +19,27 @@ import { Users } from '@/screens/users'
 
 import { UserLayout } from '../user-layout/user-layout'
 
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const tokens = getTokensFromLocalStorage()
+
+  return tokens?.accessToken ? children : <Navigate to="/login" replace />
+}
+
 const Layout = () => {
-  const cachedUser = useUserFromCache()
-  const { data: user, isLoading } = useMyAccount({ enabled: !cachedUser })
+  const { data: user, isLoading } = useMyAccount()
 
   return (
     <Routes>
-      <Route path={EAppRoutes.LOGIN} element={<Login />} />
-      <Route path={EAppRoutes.SIGNUP} element={<Signup />} />
+      <Route path={EAppRoutes.LOGIN} element={<AuthPage />} />
       <Route path={EAppRoutes.FORGOT_PASSWORD_PAGE} element={<ForgotPasswordPage />} />
       <Route path={EAppRoutes.RESET_PASSWORD_PAGE} element={<ResetPasswordPage />} />
 
       <Route
         path="/"
         element={
-          <RouteProtection user={user} isLoading={isLoading}>
+          <PrivateRoute>
             <UserLayout />
-          </RouteProtection>
+          </PrivateRoute>
         }
       >
         <Route

@@ -1,5 +1,6 @@
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Stack } from '@mui/material'
@@ -8,11 +9,14 @@ import * as yup from 'yup'
 import placeholder from '@/assets/placeholder.png'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
+import { EAppRoutes } from '@/enums/app-routes.enum'
+import { ERole } from '@/enums/role.enum'
 import {
   useCreateCompany,
   useDeleteCompany,
   useRecoverCompany,
   useUpdateCompany,
+  useUserFromCache,
 } from '@/hooks/query-client'
 import { TCompany } from '@/types/company.types'
 
@@ -35,7 +39,7 @@ type TFormUpdate = TForm & {
 
 type TProps = {
   onClose: () => void
-  company?: TCompany
+  company?: TCompany | null
   type?: 'create' | 'update'
 }
 
@@ -60,6 +64,9 @@ const CompanyForm = ({ onClose, company, type = 'create' }: TProps) => {
     resolver: yupResolver(validationSchema),
   })
 
+  const user = useUserFromCache()
+  const navigate = useNavigate()
+
   const createFormData = (payload: TForm, fileRef: RefObject<HTMLInputElement>): FormData => {
     const formData = new FormData()
 
@@ -75,28 +82,56 @@ const CompanyForm = ({ onClose, company, type = 'create' }: TProps) => {
     return formData
   }
 
-  const updateCompanyMutation = useUpdateCompany(onClose)
-  const createCompanyMutation = useCreateCompany(onClose)
-  const deleteCompanyMutation = useDeleteCompany(onClose)
-  const recoverCompanyMutation = useRecoverCompany(onClose)
+  const updateCompanyMutation = useUpdateCompany()
+  const createCompanyMutation = useCreateCompany()
+  const deleteCompanyMutation = useDeleteCompany()
+  const recoverCompanyMutation = useRecoverCompany()
 
   const createSubmit: SubmitHandler<TForm> = async (payload: TForm) => {
     const formData = createFormData(payload, fileRef)
-    createCompanyMutation.mutate(formData)
+    createCompanyMutation.mutate(formData, {
+      onSuccess: () => {
+        onClose()
+      },
+    })
   }
   const updateSubmit: SubmitHandler<TForm> = async (payload: TForm) => {
     const formData = createFormData(payload, fileRef)
-    updateCompanyMutation.mutate({ payload: formData, id: company?.id || 0 })
+    updateCompanyMutation.mutate(
+      { payload: formData, id: company?.id || 0 },
+      {
+        onSuccess: () => {
+          onClose()
+        },
+      },
+    )
   }
 
   const deleteSubmit = async () => {
     if (!company) return
-    deleteCompanyMutation.mutate({ id: company.id })
+    deleteCompanyMutation.mutate(
+      { id: company.id },
+      {
+        onSuccess: () => {
+          onClose()
+          if (user?.role === ERole.USER) {
+            navigate(`/${EAppRoutes.COMPANIES}`, { replace: true })
+          }
+        },
+      },
+    )
   }
 
   const recoverSubmit = async () => {
     if (!company) return
-    recoverCompanyMutation.mutate({ id: company.id })
+    recoverCompanyMutation.mutate(
+      { id: company.id },
+      {
+        onSuccess: () => {
+          onClose()
+        },
+      },
+    )
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,8 +1,8 @@
-import { removeTokenFromLocalStorage } from './localstorage.helper'
+import { queryClient } from '@/main'
 
 const logout = () => {
-  removeTokenFromLocalStorage()
   localStorage.clear()
+  queryClient.clear()
 }
 
 export { logout }

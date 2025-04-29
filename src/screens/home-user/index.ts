@@ -1,1 +1,1 @@
-export { Home } from './home-user'
+export { HomeUser } from './home-user'

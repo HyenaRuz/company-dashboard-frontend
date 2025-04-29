@@ -37,7 +37,7 @@ const ResetPasswordPage = () => {
 
   const onSubmit = async (data: TFormData) => {
     if (!token) {
-      toast.error('Invalid token.')
+      toast('Invalid token.', { type: 'error' })
       return
     }
 

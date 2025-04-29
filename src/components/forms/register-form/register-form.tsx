@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -10,7 +9,6 @@ import * as yup from 'yup'
 import { checkEmail } from '@/api/account'
 import { Button } from '@/components/ui/button'
 import { TextField } from '@/components/ui/text-field'
-import { EAppRoutes } from '@/enums/app-routes.enum'
 import { useSignup } from '@/hooks/query-client'
 import { emailSchema, passwordSchema, usernameSchema } from '@/validation/user.validation'
 
@@ -28,11 +26,15 @@ type TForm = {
   repeatPassword: string
 }
 
-const SignupForm = () => {
+type TProps = {
+  onLogin: () => void
+}
+
+const RegisterForm = ({ onLogin }: TProps) => {
   const [preview, setPreview] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const signupMutation = useSignup()
-  const navigate = useNavigate()
 
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -47,6 +49,7 @@ const SignupForm = () => {
       password: '',
       repeatPassword: '',
     },
+    disabled: isLoading,
     resolver: yupResolver(validationSchema),
   })
 
@@ -70,7 +73,15 @@ const SignupForm = () => {
 
     if (file) formData.append('avatar', file)
 
-    signupMutation.mutate(formData)
+    signupMutation.mutate(formData, {
+      onSuccess: () => {
+        setIsLoading(true)
+        onLogin()
+      },
+      onError: () => {
+        setIsLoading(false)
+      },
+    })
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,13 +167,13 @@ const SignupForm = () => {
             )}
           />
 
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" loading={isLoading}>
             Signup
           </Button>
         </Stack>
 
         <Typography>Do you already have an account?</Typography>
-        <Button type="button" onClick={() => navigate(EAppRoutes.LOGIN)}>
+        <Button type="button" onClick={onLogin} disabled={isLoading}>
           Login
         </Button>
       </Stack>
@@ -170,4 +181,4 @@ const SignupForm = () => {
   )
 }
 
-export { SignupForm }
+export { RegisterForm }

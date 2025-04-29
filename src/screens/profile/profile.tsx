@@ -165,7 +165,7 @@ const Profile = () => {
               setFormModalOpen={() => {
                 setEditFormModalOpen(false)
               }}
-              adminForm={!!id}
+              adminForm={[ERole.ADMIN, ERole.SUPERADMIN].includes(user.role)}
               refreshData={handleRefetch}
             />
           </Modal>

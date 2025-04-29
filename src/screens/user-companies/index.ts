@@ -1,1 +1,1 @@
-export { Companies } from './user-companies'
+export { UserCompanies } from './user-companies'

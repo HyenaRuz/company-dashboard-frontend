@@ -1,4 +1,5 @@
 import { Controller, useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Grid, Stack } from '@mui/material'
@@ -22,7 +23,28 @@ const ForgotPasswordPage = () => {
   const requestPasswordResetMutation = useRequestPasswordReset()
 
   const onSubmit = async (data: { email: string }) => {
-    requestPasswordResetMutation.mutate({ email: data.email })
+    requestPasswordResetMutation.mutate(
+      { email: data.email },
+      {
+        onSuccess: (data) => {
+          console.log(data.previewUrl)
+
+          toast(
+            <div>
+              Reset link sent to your email.
+              <Button
+                sx={{ backgroundColor: '' }}
+                type="button"
+                onClick={() => window.open(data.previewUrl, '_blank')}
+              >
+                View Fake Email
+              </Button>
+            </div>,
+            { type: 'info' },
+          )
+        },
+      },
+    )
   }
 
   return (

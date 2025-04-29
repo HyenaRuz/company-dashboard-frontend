@@ -49,10 +49,10 @@ const ProfileEditForm = ({
 
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const useUpdateAccountMutation = useUpdateAccount(setFormModalOpen)
-  const updateAccountAdminMutation = useUpdateAccountAdmin(setFormModalOpen)
-  const deleteAccountMutation = useDeleteAccount(setFormModalOpen)
-  const recoverAccountMutation = useRecoverAccount(setFormModalOpen)
+  const useUpdateAccountMutation = useUpdateAccount()
+  const updateAccountAdminMutation = useUpdateAccountAdmin()
+  const deleteAccountMutation = useDeleteAccount()
+  const recoverAccountMutation = useRecoverAccount()
 
   const {
     control,
@@ -85,20 +85,45 @@ const ProfileEditForm = ({
 
   const submitUser = async (payload: TForm) => {
     const formData = createFormData(payload, fileRef)
-    useUpdateAccountMutation.mutate(formData)
+    useUpdateAccountMutation.mutate(formData, {
+      onSuccess: () => {
+        setFormModalOpen()
+      },
+    })
   }
 
   const submitAdmin = async (payload: TForm) => {
     const formData = createFormData(payload, fileRef)
-    updateAccountAdminMutation.mutate({ payload: formData, id: userData.id })
+    updateAccountAdminMutation.mutate(
+      { payload: formData, id: userData.id },
+      {
+        onSuccess: () => {
+          setFormModalOpen()
+        },
+      },
+    )
   }
 
   const submitDelete = () => {
-    deleteAccountMutation.mutate({ id: userData.id })
+    deleteAccountMutation.mutate(
+      { id: userData.id },
+      {
+        onSuccess: () => {
+          setFormModalOpen()
+        },
+      },
+    )
   }
 
   const submitRecover = async () => {
-    recoverAccountMutation.mutate({ id: userData.id })
+    recoverAccountMutation.mutate(
+      { id: userData.id },
+      {
+        onSuccess: () => {
+          setFormModalOpen()
+        },
+      },
+    )
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
