@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import EditDocumentIcon from '@mui/icons-material/EditDocument'
 import { Box, Card, IconButton, Stack } from '@mui/material'
 
-import { deleteCompany } from '@/api/companies'
 import placeholder from '@/assets/placeholder.png'
 import { EAppRoutes } from '@/enums/app-routes.enum'
+import { useDeleteCompany } from '@/hooks/query-client'
 import { TCompany } from '@/types/company.types'
 
 import { Popover } from '../popover'
@@ -33,19 +32,20 @@ const CompanyCard = ({
   const [userControlsAnchorEl, setUserControlsAnchorEl] = useState<HTMLButtonElement | null>(null)
 
   const navigate = useNavigate()
+  const deleteCompanyMutation = useDeleteCompany()
+
   const handleDeleteCompany = async () => {
     if (!company) return
 
-    try {
-      await deleteCompany(company?.id)
-
-      toast('Company deleted', { type: 'success' })
-      setUserControlsAnchorEl(null)
-
-      refreshData && refreshData()
-    } catch (error) {
-      toast('Error deleting company', { type: 'error' })
-    }
+    deleteCompanyMutation.mutate(
+      { id: company.id },
+      {
+        onSuccess: () => {
+          setUserControlsAnchorEl(null)
+          refreshData && refreshData()
+        },
+      },
+    )
   }
 
   const handleEditCompany = async () => {

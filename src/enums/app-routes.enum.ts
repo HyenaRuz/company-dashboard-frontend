@@ -9,6 +9,8 @@ enum EAppRoutes {
   ADMIN = 'admin',
   ADMINS = 'admins',
   USERS = 'users',
+  FORGOT_PASSWORD_PAGE = 'forgot-password',
+  RESET_PASSWORD_PAGE = 'reset-password',
 }
 
 export { EAppRoutes }

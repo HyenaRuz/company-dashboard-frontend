@@ -8,7 +8,7 @@ type TProps = {
   id: number
   options?: Partial<UseQueryOptions<TCompany>>
 }
-export const useCompany = (props: TProps) => {
+const useCompany = (props: TProps) => {
   const { options, id } = props
 
   return useQuery<TCompany>({
@@ -23,3 +23,5 @@ export const useCompany = (props: TProps) => {
     ...options,
   })
 }
+
+export { useCompany }

@@ -1,23 +1,40 @@
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
   plugins: [
     react({
       jsxImportSource: '@emotion/react',
     }),
   ],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
+  server: {
+    host: true,
+    port: 8083,
+    watch: {
+      usePolling: true,
     },
   },
-  define: {
-    'process.env': {},
-  },
-  server: {
+  preview: {
+    host: true,
     port: 8083,
-    open: true,
+  },
+  build: {
+    target: 'esnext',
+    sourcemap: false,
+    minify: true,
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+        },
+      },
+    },
   },
 })

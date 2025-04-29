@@ -111,7 +111,6 @@ const UserCompanies = () => {
       <Modal open={formModalOpen} onClose={closeModal}>
         <CompanyForm
           onClose={closeModal}
-          reloadData={refetch}
           company={selectedCompany}
           type={selectedCompany ? 'update' : 'create'}
         />

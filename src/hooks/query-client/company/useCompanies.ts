@@ -11,7 +11,7 @@ type TProps = TPagination &
     options?: Partial<UseQueryOptions<[TCompany[], number]>>
   }
 
-export const useCompanies = (props: TProps) => {
+const useCompanies = (props: TProps) => {
   const { options, ...allprops } = props
 
   return useQuery<[TCompany[], number]>({
@@ -25,3 +25,5 @@ export const useCompanies = (props: TProps) => {
     ...options,
   })
 }
+
+export { useCompanies }

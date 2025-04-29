@@ -1,4 +1,5 @@
 import { Controller, useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Stack } from '@mui/material'
@@ -31,10 +32,29 @@ const ChangePassword = ({ onClose }: { onClose: () => void }) => {
     resolver: yupResolver(validationSchema),
   })
 
-  const updateAccountPasswordMutation = useUpdateAccountPassword(onClose, setError)
+  const updateAccountPasswordMutation = useUpdateAccountPassword()
 
   const submit = async (payload: TChangePassword) => {
-    updateAccountPasswordMutation.mutate({ payload })
+    updateAccountPasswordMutation.mutate(
+      { payload },
+      {
+        onSuccess: () => {
+          onClose()
+        },
+        onError: (error: any) => {
+          const message = error?.response?.data?.message
+
+          if (message === 'Old password is incorrect') {
+            setError('oldPassword', {
+              type: 'manual',
+              message,
+            })
+          } else {
+            toast(`Error: ${message}`, { type: 'error' })
+          }
+        },
+      },
+    )
   }
 
   return (

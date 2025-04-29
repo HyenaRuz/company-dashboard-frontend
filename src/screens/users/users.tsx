@@ -3,26 +3,25 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { Box, Stack, Typography } from '@mui/material'
-import {
-  GridFilterModel,
-  GridPaginationModel,
-  GridRowParams,
-  GridSortModel,
-} from '@mui/x-data-grid'
+import { GridPaginationModel, GridRowParams, GridSortModel } from '@mui/x-data-grid'
 
 import { GenericDataGrid } from '@/components/data-grid/data-grid'
 import userColums from '@/components/data-grid/lib/constants/user-colums'
+import { useUsers } from '@/hooks/query-client'
 import { TAccount } from '@/types/account.types'
 import { TSorting } from '@/types/api.types'
-import { useUsers } from '@/hooks/query-client'
+
+const DEFAULT_PAGE_SIZE = 17
 
 const Users = () => {
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
+  const [filterModel, setFilterModel] = useState<Record<string, string>>({})
   const [sortModel, setSortModel] = useState<GridSortModel>([])
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 17,
+    pageSize: DEFAULT_PAGE_SIZE,
   })
+
+  console.log(paginationModel)
 
   const navigate = useNavigate()
 
@@ -38,23 +37,13 @@ const Users = () => {
     }
   }
 
-  const filters = filterModel.items
-    .filter((item) => !!item.value)
-    .reduce(
-      (acc, item) => {
-        acc[item.field] = item.value
-        return acc
-      },
-      {} as Record<string, string>,
-    )
-
   const sortParams = getSortParams(sortModel)
 
   const { data, error } = useUsers({
     page: paginationModel.page + 1,
-    limit: paginationModel.pageSize,
+    limit: DEFAULT_PAGE_SIZE,
     ...sortParams,
-    ...filters,
+    ...filterModel,
   })
 
   if (error) {
@@ -91,7 +80,16 @@ const Users = () => {
             rowIdKey="id"
             paginationModel={paginationModel}
             setPaginationModel={setPaginationModel}
-            handleFilterChange={(model) => setFilterModel(model)}
+            handleFilterChange={(model) => {
+              const filters = model.items.reduce(
+                (acc, item) => {
+                  acc[item.field] = item.value
+                  return acc
+                },
+                {} as Record<string, string>,
+              )
+              setFilterModel(filters)
+            }}
             handleSortChange={(model) => setSortModel(model)}
             onRowClick={handleRowClick}
           />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
@@ -73,15 +73,16 @@ const Company = () => {
     data: company,
     isLoading,
     error,
-    refetch,
   } = useCompany({
     id: +id!,
   })
 
-  if (error) {
-    toast(`Error loading company: ${(error as any).message}`, { type: 'error' })
-    navigate(`/${EAppRoutes.COMPANIES}`)
-  }
+  useEffect(() => {
+    if (error) {
+      toast(`Error loading company: ${(error as any).message}`, { type: 'error' })
+      navigate(`/${EAppRoutes.COMPANIES}`)
+    }
+  }, [error])
 
   const renderContent = () => {
     if (isLoading) {
@@ -89,7 +90,7 @@ const Company = () => {
     }
 
     return (
-      <Stack gap={2}>
+      <Stack gap={4}>
         <Stack position="relative" marginBottom={8}>
           <Box
             component="img"
@@ -149,27 +150,22 @@ const Company = () => {
               ))}
           </Stack>
         </Grid>
+
+        {user?.role !== ERole.USER && company?.historyLogs && (
+          <HistoryGrid data={company?.historyLogs} />
+        )}
       </Stack>
     )
   }
 
   return (
-    <Stack gap={4}>
+    <>
       {renderContent()}
 
-      {user?.role !== ERole.USER && company?.historyLogs && (
-        <HistoryGrid data={company?.historyLogs} />
-      )}
-
       <Modal open={formModalOpen} onClose={() => setFormModalOpen(false)}>
-        <CompanyForm
-          onClose={() => setFormModalOpen(false)}
-          reloadData={refetch}
-          company={company}
-          type="update"
-        />
+        <CompanyForm onClose={() => setFormModalOpen(false)} company={company} type="update" />
       </Modal>
-    </Stack>
+    </>
   )
 }
 

@@ -6,14 +6,14 @@ import { updateCompany } from '@/api/companies'
 import { EQueryKeys } from '@/enums/query-keys.enum'
 import { TCompany } from '@/types/company.types'
 
-export const useUpdateCompany = (onClose?: () => void) => {
+const useUpdateCompany = () => {
   const queryClient = useQueryClient()
 
   return useMutation<TCompany, Error, { payload: FormData; id: number }>({
     mutationFn: async ({ payload, id }) => await updateCompany(id, payload),
     onSuccess: () => {
       toast('Company updated successfully.', { type: 'success' })
-      onClose && onClose()
+
       queryClient.invalidateQueries({ queryKey: [EQueryKeys.COMPANIES] })
       queryClient.invalidateQueries({ queryKey: [EQueryKeys.COMPANY] })
     },
@@ -22,3 +22,5 @@ export const useUpdateCompany = (onClose?: () => void) => {
     },
   })
 }
+
+export { useUpdateCompany }

@@ -4,11 +4,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Logout } from '@mui/icons-material'
 import PersonIcon from '@mui/icons-material/Person'
 import { Avatar, Divider, Grid, IconButton, MenuItem, Stack, Typography } from '@mui/material'
-import { useQueryClient } from '@tanstack/react-query'
 import cn from 'classnames'
 
 import { EAppRoutes } from '@/enums/app-routes.enum'
-import { EQueryKeys } from '@/enums/query-keys.enum'
 import { logout } from '@/helpers/logout'
 import { useUserFromCache } from '@/hooks/query-client'
 
@@ -23,12 +21,10 @@ const ProfileButton = () => {
 
   const user = useUserFromCache()
   const location = useLocation()
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   const logoutHandler = () => {
     logout()
-    queryClient.invalidateQueries({ queryKey: [EQueryKeys.ME] })
     navigate(EAppRoutes.LOGIN)
   }
 

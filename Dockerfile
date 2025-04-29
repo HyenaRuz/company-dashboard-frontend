@@ -2,16 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json .
+COPY package.json package-lock.json* ./
 
 RUN npm install
-
-RUN npm i -g serve
 
 COPY . .
 
 RUN npm run build
 
-EXPOSE 8082
+EXPOSE 8083
 
 CMD [ "npm", "run", "preview" ]
